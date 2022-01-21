@@ -2,6 +2,7 @@ package ca.collene.soccer.entities;
 
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,7 +14,7 @@ public class Tournament {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO:  add annotation for unique value
+    @Column(unique = true)
     private String name;
 
     public Tournament() {

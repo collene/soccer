@@ -1,7 +1,7 @@
 package ca.collene.soccer;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -15,7 +15,6 @@ import org.springframework.shell.result.DefaultResultHandler;
 
 import ca.collene.soccer.entities.Tournament;
 import ca.collene.soccer.repositories.TournamentRepository;
-import ca.collene.soccer.services.TournamentService;
 
 @SpringBootTest(properties = {
     InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
@@ -32,37 +31,28 @@ class SoccerApplicationTests {
 	@Autowired
 	private TournamentRepository tournamentRepository;
 
-	@Autowired
-	private TournamentService tournamentService;
-
 	@Test
-	void contextLoads() {
+	void context_loads() {
 		
 	}
 
 	@Test
-	void helpDisplays() {
+	void shell_starts_and_is_interactive() {
 		Object help = shell.evaluate(() -> "help");		
 		resultHandler.handleResult(help);
         assertThat(help, is(notNullValue()));
 	}
 
 	@Test
-	void repositoriesCreatedAndSave() {
+	void repositories_created_and_save() {
 		assertThat(tournamentRepository.count(), is(0l));
 
-		Tournament newTournament = tournamentService.createTournament("Testing tournament");
+		final String testTournamentName = "Test tournament";		
+		Tournament newTournament = tournamentRepository.save(new Tournament(testTournamentName));
 		assertThat(newTournament.getId(), is(notNullValue()));
 
 		assertThat(tournamentRepository.count(), is(1l));
-		Tournament tournament = tournamentService.getTournament("Testing tournament");
+		Tournament tournament = tournamentRepository.findByName(testTournamentName);
 		assertThat(tournament, is(equalTo(newTournament)));
-	}
-
-	@Test
-	void addWorks() {
-		Object add = shell.evaluate(() -> "add 1 2");
-		resultHandler.handleResult(add);
-		assertThat(add, is(3));
 	}
 }
