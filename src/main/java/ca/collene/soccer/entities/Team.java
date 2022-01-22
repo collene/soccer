@@ -1,23 +1,17 @@
 package ca.collene.soccer.entities;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-@Entity(name = "tournament")
-@Table(name = "tournament")
-public class Tournament {
+@Entity(name = "team")
+@Table(name = "team")
+public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,18 +19,11 @@ public class Tournament {
     @Column(unique = true)
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "tournament_team",
-        joinColumns = @JoinColumn(name = "tournament_id"),
-        inverseJoinColumns = @JoinColumn(name = "team_id")
-    )
-    private List<Team> teams = new ArrayList<>();
-
-    public Tournament() {
+    public Team() {
 
     }
-    public Tournament(String name) {
+
+    public Team(String name) {
         this.name = name;
     }
 
@@ -49,24 +36,15 @@ public class Tournament {
     public void setName(String name) {
         this.name = name;
     }
-    public void addTeam(Team team) {
-        teams.add(team);
-    }
-    public List<Team> getTeams() {
-        return teams;
-    }
-    public boolean hasTeam(Team team) {
-        return teams.contains(team);
-    }
 
     @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;
-        } else if(!(o instanceof Tournament)) {
+        } else if(!(o instanceof Team)) {
             return false;
         }
-        Tournament other = (Tournament) o;
+        Team other = (Team) o;
         return this.id == other.id && Objects.equals(this.name, other.name);
     }
 
