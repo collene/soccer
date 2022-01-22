@@ -106,6 +106,43 @@ public class InterfaceTests {
         assertThat(addTeamAgain, is("Team with name '" + teamName +"' is already in tournament '" + tournamentName + "'"));
     }
 
+    @Test
+    public void create_person_command_works() {
+        final String personName = "Jane Doe";     
+        final String command = String.format("create-person '%s'", personName);   
+        Object createPerson = executeCommandInShell(command);
+        assertThat(createPerson, is("Person with name '" + personName + "' created"));
+    }
+
+    @Test
+    public void create_person_already_added_displays_error() {
+        final String personName = "Jane Doe";
+        final String command = String.format("create-person '%s'", personName);
+        Object firstPerson = executeCommandInShell(command);
+        assertThat(firstPerson, is("Person with name '" + personName + "' created"));
+        Object secondPerson = executeCommandInShell(command);
+        assertThat(secondPerson, is("Person with name '" + personName + "' already exists"));
+    }
+
+    @Test
+    public void add_coach_to_team_command_works() {
+        final String coachName = "Coach Smith";
+        final String teamName = "Test Team";
+        final String command = String.format("add-coach-to-team '%s' '%s'", coachName, teamName);
+        Object addCoach = executeCommandInShell(command);
+        assertThat(addCoach, is("Person with name '" + coachName + "' added as a coach to team '" + teamName + "'"));
+    }
+
+    @Test
+    public void add_coach_twice_displays_error() {
+        final String coachName = "Coach Smith";
+        final String teamName = "Test Team";
+        final String command = String.format("add-coach-to-team '%s' '%s'", coachName, teamName);
+        executeCommandInShell(command);
+        Object addCoachAgain = executeCommandInShell(command);
+        assertThat(addCoachAgain, is("Person with name '" + coachName + "' is already a coach on team '" + teamName + "'"));
+    }
+
     private Object executeCommandInShell(String commandString) {
         try(FileInputProvider inputProvider = new FileInputProvider(new StringReader(commandString), parser)) {
             Input input = inputProvider.readInput();

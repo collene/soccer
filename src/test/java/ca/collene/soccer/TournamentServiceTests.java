@@ -76,7 +76,7 @@ public class TournamentServiceTests {
     }
     
     @Test
-    public void get_tournament_by_name_that_does_not_exist_throws_exception() {
+    public void get_tournament_by_name_that_does_not_exist_fails() {
         final String tournamentName = "Tournament that does not exist";
         assertThrows(TournamentDoesNotExistException.class, () -> {
             tournamentService.getTournament(tournamentName);
@@ -85,7 +85,7 @@ public class TournamentServiceTests {
     
     // adding team that exists, is not in tournament yet
     @Test
-    public void add_team_that_exists_adds_team_to_tournament() throws Exception {
+    public void add_team_that_exists_adds_team_to_tournament_works() throws Exception {
         final String tournamentName = "Tournament";
         final String teamName = "Team";
         Tournament tournament = tournamentService.createTournament(tournamentName);
@@ -102,9 +102,29 @@ public class TournamentServiceTests {
         assertThat(team, is(in(tournament.getTeams())));
     }
 
+    @Test
+    public void add_multiple_teams_to_tournament_works() throws Exception {
+        final String tournamentName = "Tournament";
+        final String teamName1 = "Team1";
+        final String teamName2 = "Team2";
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        Team team1 = teamService.createTeam(teamName1);
+        
+        // make sure we start with an empty list of teams
+        assertThat(tournament.getTeams(), is(empty()));
+
+        tournamentService.addTeamToTournament(teamName1, tournamentName);
+        tournamentService.addTeamToTournament(teamName2, tournamentName);
+
+        tournament = tournamentService.getTournament(tournamentName);
+        assertThat(tournament.getTeams(), hasSize(2));
+        assertThat(team1, is(in(tournament.getTeams())));
+        assertThat(teamService.getTeam(teamName2), is(in(tournament.getTeams())));
+    }
+
     // adding team that exists, but is already in tournament
     @Test
-    public void add_team_already_in_tournament_throws_exception() throws Exception {
+    public void add_team_already_in_tournament_fails() throws Exception {
         final String tournamentName = "Tournament";
         final String teamName = "Team";
         tournamentService.createTournament(tournamentName);

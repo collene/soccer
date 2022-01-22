@@ -48,7 +48,7 @@ public class TournamentService {
                 team = teamService.createTeam(teamName);
             } catch(NameAlreadyExistsException e2) {
                 // this "shouldn't" happen :D
-                throw new RuntimeException("Invalid data state encountered", e);
+                throw new RuntimeException("Invalid data state encountered", e2);
             }            
         }
         if(tournament.hasTeam(team)) {
