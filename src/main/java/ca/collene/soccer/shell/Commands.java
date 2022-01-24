@@ -125,7 +125,7 @@ public class Commands {
         try {
             Tournament tournament = tournamentService.getTournament(tournamentName);
             tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
-            return String.format("Score for game in tournament '%s' set: team '%s' scored %d points and team '%s' scored %d points", tournamentName, team1Name, team1Points, team2Name, team2Points);
+            return String.format("Score for game in tournament '%s' set: team '%s' scored %d point(s) and team '%s' scored %d point(s)", tournamentName, team1Name, team1Points, team2Name, team2Points);
         } catch (TournamentDoesNotExistException e) {
             return String.format("Tournament with name '%s' does not exist", tournamentName);
         } catch (TeamDoesNotExistException e) {
@@ -133,7 +133,7 @@ public class Commands {
         } catch (GameDoesNotExistException e) {
             return String.format("Score for game between team '%s' and team '%s' NOT set because that game does not exist in tournament '%s'", team1Name, team2Name, tournamentName);
         } catch (InvalidScoreException e) {
-            return String.format("Score for game in tournament '%s' NOT set because the score is invalid: team '%s' scored %d points and team '%s' scored %d points", tournamentName, team1Name, team1Points, team2Name, team2Points);
+            return String.format("Score for game in tournament '%s' NOT set because the score is invalid: team '%s' scored %d point(s) and team '%s' scored %d point(s)", tournamentName, team1Name, team1Points, team2Name, team2Points);
         }        
     }
 }

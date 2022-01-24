@@ -230,10 +230,66 @@ public class InterfaceTests {
         executeCommandInShell(String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName));
         String command = String.format("score-game-in-tournament '%s' %d '%s' %d '%s'", team1Name, team1Points, team2Name, team2Points, tournamentName);
         Object scoreGame = executeCommandInShell(command);
-        assertThat(scoreGame, is("Score for game in tournament '" + tournamentName + "' set: team '" + team1Name + "' scored " + team1Points + " points and team '" + team2Name + "' scored " + team2Points + " points"));     
+        assertThat(scoreGame, is("Score for game in tournament '" + tournamentName + "' set: team '" + team1Name + "' scored " + team1Points + " point(s) and team '" + team2Name + "' scored " + team2Points + " point(s)"));     
     }
 
-    // TODO:  LEFT OFF: remainder of interface command tests
+    @Test
+    public void score_game_in_tournament_that_does_not_exist_displays_error() {
+        final String tournamentName = "Test Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int team1Points = 1;
+        final int team2Points = 2;
+        executeCommandInShell(String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName));
+        String command = String.format("score-game-in-tournament '%s' %d '%s' %d '%s'", team1Name, team1Points, team2Name, team2Points, tournamentName);
+        Object scoreGame = executeCommandInShell(command);
+        assertThat(scoreGame, is("Tournament with name '" + tournamentName + "' does not exist"));
+    }
+
+    @Test
+    public void score_game_when_team_does_not_exist_displays_error() {
+        final String tournamentName = "Test Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final String team3Name = "Team that is not in game";
+        final int team1Points = 1;
+        final int team2Points = 2;
+        executeCommandInShell(String.format("create-tournament '%s'", tournamentName));
+        executeCommandInShell(String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName));
+        String command = String.format("score-game-in-tournament '%s' %d '%s' %d '%s'", team1Name, team1Points, team3Name, team2Points, tournamentName);
+        Object scoreGame = executeCommandInShell(command);
+        assertThat(scoreGame, is("Score for game in tournament '" + tournamentName + "' NOT set because either team '" + team1Name + "' or team '" + team3Name + "' does not exist"));
+    }
+
+    @Test
+    public void score_game_when_game_does_not_exist_displays_error() {
+        final String tournamentName = "Test Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int team1Points = 1;
+        final int team2Points = 2;
+        executeCommandInShell(String.format("create-tournament '%s'", tournamentName));     
+        executeCommandInShell(String.format("add-team-to-tournament '%s' '%s'", team1Name, tournamentName));
+        executeCommandInShell(String.format("add-team-to-tournament '%s' '%s'", team2Name, tournamentName));
+
+        String command = String.format("score-game-in-tournament '%s' %d '%s' %d '%s'", team1Name, team1Points, team2Name, team2Points, tournamentName);
+        Object scoreGame = executeCommandInShell(command);
+        assertThat(scoreGame, is("Score for game between team '" + team1Name + "' and team '" + team2Name + "' NOT set because that game does not exist in tournament '" + tournamentName + "'"));     
+    }
+
+    @Test
+    public void invalid_score_displays_error() {
+        final String tournamentName = "Test Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int team1Points = 1;
+        final int team2Points = -2;
+        executeCommandInShell(String.format("create-tournament '%s'", tournamentName));
+        executeCommandInShell(String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName));
+        String command = String.format("score-game-in-tournament '%s' %d '%s' %d '%s'", team1Name, team1Points, team2Name, team2Points, tournamentName);
+        Object scoreGame = executeCommandInShell(command);
+        assertThat(scoreGame, is("Score for game in tournament '" + tournamentName + "' NOT set because the score is invalid: team '" + team1Name + "' scored " + team1Points + " point(s) and team '" + team2Name + "' scored " + team2Points + " point(s)"));
+    }
 
     private Object executeCommandInShell(String commandString) {
         try(FileInputProvider inputProvider = new FileInputProvider(new StringReader(commandString), parser)) {
