@@ -17,7 +17,8 @@ public class TeamService {
     private PersonService personService;
 
     public Team createTeam(String name) throws NameAlreadyExistsException {
-        Team newTeam = new Team(name);
+        Team newTeam = new Team.With().name(name)
+                            .build();
         try {
             return teamRepository.save(newTeam);
         } catch(DataIntegrityViolationException e) {
@@ -33,33 +34,39 @@ public class TeamService {
         return team;
     }
 
-    public void addCoachToTeam(String personName, String teamName) throws CoachAlreadyOnTeamException {
-        Team team = null;
+    public Team getOrCreateTeam(String teamName) {        
         try {
-            team = getTeam(teamName);
+            return getTeam(teamName);            
         } catch(TeamDoesNotExistException e) {
             try {
-                team = createTeam(teamName);
+                return createTeam(teamName);                
             } catch(NameAlreadyExistsException e2) {
-                // this "shouldn't" happen :D
+                // this "shouldn't" happen
                 throw new RuntimeException("Invalid data state encountered", e2);
             }
         }
-        Person coach = null;
-        try {
-            coach = personService.getPerson(personName);
-        } catch(PersonDoesNotExistException e) {
-            try {
-                coach = personService.createPerson(personName);
-            } catch(NameAlreadyExistsException e2) {
-                // this "shouldn't" happen :D
-                throw new RuntimeException("Invalid data state encountered", e2);
-            }
-        }
+    }
+
+    public void addCoachToTeam(String personName, String teamName) throws CoachAlreadyOnTeamException {
+        Team team = getOrCreateTeam(teamName);        
+        Person coach = personService.getOrCreatePerson(personName);        
         if(team.hasCoach(coach)) {
             throw new CoachAlreadyOnTeamException("The coach " + personName + " is already on the team " + teamName);
         }
         team.addCoach(coach);
+        teamRepository.save(team);
+    }
+
+    public void addPlayerToTeam(String personName, String teamName, int playerNumber) throws PlayerAlreadyOnTeamException, NumberAlreadyInUseException {
+        Team team = getOrCreateTeam(teamName);
+        Person person = personService.getOrCreatePerson(personName);
+        if(team.hasPlayer(person)) {
+            throw new PlayerAlreadyOnTeamException("The person " + personName + " is already on the team " + teamName);
+        }
+        if(team.hasPlayerWithNumber(playerNumber)) {
+            throw new NumberAlreadyInUseException("The number " + playerNumber + " is already in use on the team " + teamName);
+        }
+        team.addPlayer(person, playerNumber);
         teamRepository.save(team);
     }
 }

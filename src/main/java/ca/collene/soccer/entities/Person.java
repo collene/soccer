@@ -43,12 +43,31 @@ public class Person {
         } else if(!(o instanceof Person)) {
             return false;
         }
-        Person other = (Person) o;
-        return this.id == other.id && Objects.equals(this.name, other.name);
+        Person other = (Person) o;    
+        if(this.id == null || other.id == null) {
+            return Objects.equals(this.name, other.name);
+        }  
+        return this.id == other.id;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
+    }
+
+    public static class With {
+        private String name;
+
+        public With() {
+
+        }
+        public With name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Person build() {
+            return new Person(name);
+        }
     }
 }

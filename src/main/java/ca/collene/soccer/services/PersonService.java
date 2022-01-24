@@ -13,7 +13,8 @@ public class PersonService {
     private PersonRepository personRepository;
 
     public Person createPerson(String name) throws NameAlreadyExistsException {
-        Person newPerson = new Person(name);
+        Person newPerson = new Person.With().name(name)
+                                .build();
         try {
             return personRepository.save(newPerson);
         } catch(DataIntegrityViolationException e) {
@@ -27,5 +28,18 @@ public class PersonService {
             throw new PersonDoesNotExistException("Person with name " + name + " was not found");
         }
         return person;
+    }
+
+    public Person getOrCreatePerson(String name) {
+        try {
+            return getPerson(name);
+        } catch(PersonDoesNotExistException e) {
+            try {
+                return createPerson(name);
+            } catch(NameAlreadyExistsException e2) {
+                // this "shouldn't" happen
+                throw new RuntimeException("Invalid data state encountered", e2);
+            }
+        }
     }
 }

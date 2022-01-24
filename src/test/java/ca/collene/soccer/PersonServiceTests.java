@@ -72,4 +72,24 @@ public class PersonServiceTests {
             personService.getPerson(testPersonName);
         });
     }
+
+    @Test
+    public void get_or_create_person_who_exists_returns_person() throws Exception {
+        final String personName = "Jane Doe";
+        Person newPerson = personService.createPerson(personName);
+        
+        Person queriedPerson = personService.getOrCreatePerson(personName);
+        assertThat(personRepository.count(), is(equalTo(1l)));
+        assertThat(queriedPerson, is(equalTo(newPerson)));
+    }
+
+    @Test
+    public void get_or_create_person_who_does_not_exist_creates_person() throws Exception {
+        final String personName = "Jane Doe";
+        
+        assertThat(personRepository.count(), is(equalTo(0l)));
+        Person newPerson = personService.createPerson(personName);
+        assertThat(personRepository.count(), is(equalTo(1l)));
+        assertThat(personService.getPerson(personName), is(equalTo(newPerson)));
+    }    
 }

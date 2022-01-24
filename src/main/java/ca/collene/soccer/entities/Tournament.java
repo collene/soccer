@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +13,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 @Entity(name = "tournament")
 @Table(name = "tournament")
@@ -25,12 +27,13 @@ public class Tournament {
     @Column(unique = true)
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "tournament_team",
         joinColumns = @JoinColumn(name = "tournament_id"),
         inverseJoinColumns = @JoinColumn(name = "team_id")
     )
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Team> teams = new ArrayList<>();
 
     public Tournament() {
@@ -67,11 +70,30 @@ public class Tournament {
             return false;
         }
         Tournament other = (Tournament) o;
-        return this.id == other.id && Objects.equals(this.name, other.name);
+        if(this.id == null || other.id == null) {
+            return Objects.equals(this.name, other.name);
+        }
+        return this.id == other.id;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
+    }
+
+    public static class With {
+        private String name;
+
+        public With() {
+
+        }
+        public With name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Tournament build() {
+            return new Tournament(name);
+        }
     }
 }

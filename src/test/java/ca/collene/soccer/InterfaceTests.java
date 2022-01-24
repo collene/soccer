@@ -143,6 +143,39 @@ public class InterfaceTests {
         assertThat(addCoachAgain, is("Person with name '" + coachName + "' is already a coach on team '" + teamName + "'"));
     }
 
+    @Test
+    public void add_player_to_team_command_works() {
+        final String playerName = "Jane Doe";
+        final String teamName = "Test Team";
+        final int playerNumber = 10;
+        final String command = String.format("add-player-to-team '%s' '%s' '%d'", playerName, teamName, playerNumber);        
+        Object addPlayer = executeCommandInShell(command);
+        assertThat(addPlayer, is("Person with name '" + playerName + "' added as a player to team '" + teamName + "' with number '" + playerNumber + "'"));
+    }
+
+    @Test
+    public void add_player_twice_displays_error() {
+        final String playerName = "Jane Doe";
+        final String teamName = "Test Team";
+        final int playerNumber = 10;
+        final String command = String.format("add-player-to-team '%s' '%s' '%d'", playerName, teamName, playerNumber);        
+        executeCommandInShell(command);
+        Object addPlayer = executeCommandInShell(command);
+        assertThat(addPlayer, is("Person with name '" + playerName + "' is already a player on team '" + teamName + "'"));
+    }
+
+    @Test
+    public void add_player_with_same_number_displays_error() {
+        final String player1Name = "Player One";
+        final String player2Name = "Player Two";
+        final String teamName = "Test Team";
+        final int playerNumber = 10;
+        executeCommandInShell(String.format("add-player-to-team '%s' '%s' '%d'", player1Name, teamName, playerNumber));
+        String command = String.format("add-player-to-team '%s' '%s' '%d'", player2Name, teamName, playerNumber);
+        Object addPlayer = executeCommandInShell(command);
+        assertThat(addPlayer, is("Player with number '" + playerNumber + "' is already on team '" + teamName + "'"));
+    }
+
     private Object executeCommandInShell(String commandString) {
         try(FileInputProvider inputProvider = new FileInputProvider(new StringReader(commandString), parser)) {
             Input input = inputProvider.readInput();

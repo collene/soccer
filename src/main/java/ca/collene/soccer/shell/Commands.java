@@ -7,7 +7,9 @@ import org.springframework.shell.standard.ShellOption;
 
 import ca.collene.soccer.services.CoachAlreadyOnTeamException;
 import ca.collene.soccer.services.NameAlreadyExistsException;
+import ca.collene.soccer.services.NumberAlreadyInUseException;
 import ca.collene.soccer.services.PersonService;
+import ca.collene.soccer.services.PlayerAlreadyOnTeamException;
 import ca.collene.soccer.services.TeamAlreadyInTournamentException;
 import ca.collene.soccer.services.TeamService;
 import ca.collene.soccer.services.TournamentDoesNotExistException;
@@ -73,6 +75,18 @@ public class Commands {
             return String.format("Person with name '%s' added as a coach to team '%s'", personName, teamName);
         } catch(CoachAlreadyOnTeamException e) {
             return String.format("Person with name '%s' is already a coach on team '%s'", personName, teamName);
+        }
+    }
+
+    @ShellMethod(value = "Add player to team.", group = "Team Commands")
+    public String addPlayerToTeam(@ShellOption({"--player"})String personName, @ShellOption({"--team"})String teamName, @ShellOption({"--number"})int playerNumber) {
+        try {
+            teamService.addPlayerToTeam(personName, teamName, playerNumber);
+            return String.format("Person with name '%s' added as a player to team '%s' with number '%d'", personName, teamName, playerNumber);
+        } catch(PlayerAlreadyOnTeamException e) {
+            return String.format("Person with name '%s' is already a player on team '%s'", personName, teamName);
+        } catch(NumberAlreadyInUseException e) {
+            return String.format("Player with number '%d' is already on team '%s'", playerNumber, teamName);
         }
     }
 }

@@ -1,7 +1,5 @@
 package ca.collene.soccer.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -12,7 +10,7 @@ import ca.collene.soccer.repositories.TournamentRepository;
 
 @Service
 public class TournamentService {
-    private Logger logger = LoggerFactory.getLogger(TournamentService.class);
+    //private Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
     @Autowired
     private TournamentRepository tournamentRepository;
@@ -20,9 +18,9 @@ public class TournamentService {
     @Autowired
     private TeamService teamService;
 
-    public Tournament createTournament(String name) throws NameAlreadyExistsException {
-        logger.debug("Creating tournament with name: " + name);
-        Tournament newTournament = new Tournament(name);
+    public Tournament createTournament(String name) throws NameAlreadyExistsException {        
+        Tournament newTournament = new Tournament.With().name(name)
+                                        .build();
         try {
             return tournamentRepository.save(newTournament);
         } catch(DataIntegrityViolationException e) {
@@ -40,17 +38,7 @@ public class TournamentService {
 
     public void addTeamToTournament(String teamName, String tournamentName) throws TournamentDoesNotExistException, TeamAlreadyInTournamentException {
         Tournament tournament = getTournament(tournamentName);
-        Team team = null;
-        try {
-            team = teamService.getTeam(teamName);
-        } catch(TeamDoesNotExistException e) {
-            try {
-                team = teamService.createTeam(teamName);
-            } catch(NameAlreadyExistsException e2) {
-                // this "shouldn't" happen :D
-                throw new RuntimeException("Invalid data state encountered", e2);
-            }            
-        }
+        Team team = teamService.getOrCreateTeam(teamName);
         if(tournament.hasTeam(team)) {
             throw new TeamAlreadyInTournamentException("Team " + teamName + " is already in tournament " + tournamentName);
         }

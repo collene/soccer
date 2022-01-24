@@ -17,12 +17,15 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 import ca.collene.soccer.entities.Person;
+import ca.collene.soccer.entities.Player;
 import ca.collene.soccer.entities.Team;
 import ca.collene.soccer.repositories.TeamRepository;
 import ca.collene.soccer.services.CoachAlreadyOnTeamException;
 import ca.collene.soccer.services.NameAlreadyExistsException;
+import ca.collene.soccer.services.NumberAlreadyInUseException;
 import ca.collene.soccer.services.PersonDoesNotExistException;
 import ca.collene.soccer.services.PersonService;
+import ca.collene.soccer.services.PlayerAlreadyOnTeamException;
 import ca.collene.soccer.services.TeamDoesNotExistException;
 import ca.collene.soccer.services.TeamService;
 
@@ -203,5 +206,186 @@ public class TeamServiceTests {
         assertThat(personService.getPerson(coachName1), is(in(team1.getCoaches())));
         assertThat(personService.getPerson(coachName2), is(in(team1.getCoaches())));
         assertThat(personService.getPerson(coachName3), is(in(team2.getCoaches())));
+    }
+
+    @Test
+    public void get_or_create_team_that_exists_returns_team() throws Exception {
+        final String teamName = "Team";
+        Team newTeam = teamService.createTeam(teamName);
+        
+        Team queriedTeam = teamService.getOrCreateTeam(teamName);
+        assertThat(teamRepository.count(), is(equalTo(1l)));
+        assertThat(queriedTeam, is(equalTo(newTeam)));
+    }
+
+    @Test
+    public void get_or_create_team_that_does_not_exist_creates_team() throws Exception {
+        final String teamName = "Team";
+        
+        assertThat(teamRepository.count(), is(equalTo(0l)));
+        Team newTeam = teamService.createTeam(teamName);
+        assertThat(teamRepository.count(), is(equalTo(1l)));
+        assertThat(teamService.getTeam(teamName), is(equalTo(newTeam)));
+    }  
+
+    @Test
+    public void add_player_works() throws Exception {
+        final String teamName = "Team";
+        final String personName = "Jane Doe";
+        final int playerNumber = 10;
+        Team team = teamService.createTeam(teamName);
+        Person person = personService.createPerson(personName);
+
+        teamService.addPlayerToTeam(personName, teamName, playerNumber);
+
+        // need to load team again from the service
+        team = teamService.getTeam(teamName);
+        assertThat(team.getPlayers(), hasSize(1));        
+        Player player = team.getPlayers().get(0);
+        assertThat(player.getPerson(), is(equalTo(person)));
+        assertThat(player.getNumber(), is(equalTo(playerNumber)));
+        assertThat(player.getTeam(), is(equalTo(team)));
+    }
+
+    @Test
+    public void add_player_who_does_not_exist_works() throws Exception {
+        final String teamName = "team";
+        final String personName = "Jane Doe";
+        final int playerNumber = 10;
+
+        // make sure that the person doesn't exist
+        assertThrows(PersonDoesNotExistException.class, () -> {
+            personService.getPerson(personName);
+        });        
+
+        teamService.addPlayerToTeam(personName, teamName, playerNumber);
+
+        Team team = teamService.getTeam(teamName);
+        assertThat(team.getPlayers(), hasSize(1));        
+        Player player = team.getPlayers().get(0);
+        assertThat(player.getPerson(), is(equalTo(personService.getPerson(personName))));
+        assertThat(player.getNumber(), is(equalTo(playerNumber)));
+        assertThat(player.getTeam(), is(equalTo(team)));
+    }
+
+    @Test
+    public void add_multiple_players_to_same_team_works() throws Exception {
+        final String teamName = "Team";
+        final String person1Name = "Person One";
+        final String person2Name = "Person Two";
+        final int player1Number = 10;
+        final int player2Number = 20;
+
+        assertThat(teamRepository.count(), is(equalTo(0l)));
+
+        teamService.addPlayerToTeam(person1Name, teamName, player1Number);
+        teamService.addPlayerToTeam(person2Name, teamName, player2Number);
+
+        Team team = teamService.getTeam(teamName);
+        assertThat(team.getPlayers(), hasSize(2));
+        assertThat(new Player.With().person(person1Name)
+                                    .number(player1Number)
+                                    .team(teamName)
+                                .build(),
+                    is(in(team.getPlayers())));
+        assertThat(new Player.With().person(person2Name)
+                                    .number(player2Number)
+                                    .team(teamName)
+                                .build(),
+                    is(in(team.getPlayers())));        
+    }
+
+    @Test
+    public void add_multiple_players_to_multiple_teams_works() throws Exception {
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final String person1Name = "Person One";
+        final String person2Name = "Person Two";
+        final String person3Name = "Person Three";
+        final int player1Number = 10;
+        final int player2Number = 20;
+        final int player3Number = 30;
+
+        teamService.addPlayerToTeam(person1Name, team1Name, player1Number);
+        teamService.addPlayerToTeam(person2Name, team1Name, player2Number);
+        teamService.addPlayerToTeam(person3Name, team2Name, player3Number);
+
+        Team team1 = teamService.getTeam(team1Name);
+        assertThat(team1.getPlayers(), hasSize(2));
+        assertThat(new Player.With().person(person1Name)
+                                    .number(player1Number)
+                                    .team(team1Name)
+                                .build(),
+                    is(in(team1.getPlayers())));
+        assertThat(new Player.With().person(person2Name)
+                                    .number(player2Number)
+                                    .team(team1Name)
+                                .build(),
+                    is(in(team1.getPlayers())));
+
+        Team team2 = teamService.getTeam(team2Name);
+        assertThat(team2.getPlayers(), hasSize(1));
+        assertThat(new Player.With().person(person3Name)
+                                    .number(player3Number)
+                                    .team(team2Name)
+                                .build(),
+                    is(in(team2.getPlayers())));
+    }
+
+    // adding same person with different number fails
+    @Test
+    public void add_same_person_to_team_with_different_number_fails() throws Exception {
+        final String personName = "Jane Doe";
+        final String teamName = "Team";
+        final int playerNumber1 = 10;
+        final int playerNumber2 = 20;
+
+        teamService.addPlayerToTeam(personName, teamName, playerNumber1);
+        assertThrows(PlayerAlreadyOnTeamException.class, () -> {
+            teamService.addPlayerToTeam(personName, teamName, playerNumber2);
+        });
+        Team team = teamService.getTeam(teamName);
+        assertThat(team.getPlayers(), hasSize(1));   
+        assertThat(new Player.With().person(personName)
+                                    .number(playerNumber1)
+                                    .team(teamName)
+                                .build(),
+                    is(in(team.getPlayers())));
+    }
+
+    // adding same person with same number fails
+    @Test
+    public void add_same_person_to_team_with_same_number_fails() throws Exception {
+        final String personName = "Jane Doe";
+        final String teamName = "Team";
+        final int playerNumber = 10;        
+
+        teamService.addPlayerToTeam(personName, teamName, playerNumber);
+        assertThrows(PlayerAlreadyOnTeamException.class, () -> {
+            teamService.addPlayerToTeam(personName, teamName, playerNumber);
+        });
+        Team team = teamService.getTeam(teamName);
+        assertThat(team.getPlayers(), hasSize(1));   
+        assertThat(new Player.With().person(personName)
+                                    .number(playerNumber)
+                                    .team(teamName)
+                                .build(),
+                    is(in(team.getPlayers())));
+    }
+
+    // adding different person with same number as another player fails
+    @Test
+    public void add_different_person_to_team_with_same_number_as_another_player_fails() throws Exception {
+        final String person1Name = "Person One";
+        final String person2Name = "Person Two";
+        final String teamName = "Team";
+        final int playerNumber = 10;
+
+        teamService.addPlayerToTeam(person1Name, teamName, playerNumber);
+        assertThrows(NumberAlreadyInUseException.class, () -> {
+            teamService.addPlayerToTeam(person2Name, teamName, playerNumber);
+        });
+        Team team = teamService.getTeam(teamName);
+        assertThat(team.getPlayers(), hasSize(1));        
     }
 }
