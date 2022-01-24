@@ -117,6 +117,9 @@ I also tried to keep the user interface simple for the user, considering they ha
 * The full player list for a team is also the "roster" for a game in the tournament.
 * Lazy loading of entities is acceptable for performance for this application.  There won't be a large number of tournaments or teams.
 * I assumed that the points awarded for a Win is 3, a Tie is 2, and a Loss is 1.
+* Two people will not have the same name (or someone externally will differentiate between them) so a string can be used to uniquely identify a person.
+* Two teams will not have the same name so a string can be used to uniquely identify a team.
+* Two tournaments will not have the same name so a string can be used to uniquely identify a tournament.
 
 ## Known Issues
 * Names are case-sensitive, so names with the same spelling but different capitalization will be considered as two separate items.  For example:  'Jane doe' and 'Jane Doe' represent two different people, and 'Ladybugs' and 'LADYBUGS' represent two different teams.

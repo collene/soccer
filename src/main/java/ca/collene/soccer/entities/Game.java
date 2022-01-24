@@ -71,6 +71,10 @@ public class Game {
         teams.add(team2);
     }
     
+    public Long getId() {
+        return id;
+    }
+
     public Tournament getTournament() {
         return tournament;
     }
