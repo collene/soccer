@@ -5,7 +5,9 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
+import ca.collene.soccer.entities.Tournament;
 import ca.collene.soccer.services.CoachAlreadyOnTeamException;
+import ca.collene.soccer.services.GameAlreadyInTournamentException;
 import ca.collene.soccer.services.NameAlreadyExistsException;
 import ca.collene.soccer.services.NumberAlreadyInUseException;
 import ca.collene.soccer.services.PersonService;
@@ -39,7 +41,8 @@ public class Commands {
     @ShellMethod(value = "Add team to tournament.", group = "Tournament Commands")
     public String addTeamToTournament(@ShellOption({"--team"}) String teamName, @ShellOption({"--tournament"}) String tournamentName) {
         try {
-            tournamentService.addTeamToTournament(teamName, tournamentName);
+            Tournament tournament = tournamentService.getTournament(tournamentName);
+            tournamentService.addTeamToTournament(teamName, tournament);
             return String.format("Team with name '%s' added to tournament '%s'", teamName, tournamentName);
         } catch (TournamentDoesNotExistException e) {            
             return String.format("Tournament with name '%s' does not exist", tournamentName);
@@ -79,7 +82,9 @@ public class Commands {
     }
 
     @ShellMethod(value = "Add player to team.", group = "Team Commands")
-    public String addPlayerToTeam(@ShellOption({"--player"})String personName, @ShellOption({"--team"})String teamName, @ShellOption({"--number"})int playerNumber) {
+    public String addPlayerToTeam(@ShellOption({"--player"}) String personName, 
+                                    @ShellOption({"--team"}) String teamName, 
+                                    @ShellOption({"--number"}) int playerNumber) {
         try {
             teamService.addPlayerToTeam(personName, teamName, playerNumber);
             return String.format("Person with name '%s' added as a player to team '%s' with number '%d'", personName, teamName, playerNumber);
@@ -88,5 +93,20 @@ public class Commands {
         } catch(NumberAlreadyInUseException e) {
             return String.format("Player with number '%d' is already on team '%s'", playerNumber, teamName);
         }
+    }
+
+    @ShellMethod(value = "Add game between two teams to tournament.", group = "Tournament Commands")
+    public String addGameToTournament(@ShellOption({"--team1"}) String team1Name, 
+                                        @ShellOption({"--team2"}) String team2Name, 
+                                        @ShellOption({"--tournament"}) String tournamentName) {
+        try {
+            Tournament tournament = tournamentService.getTournament(tournamentName);
+            tournamentService.addGameToTournament(team1Name, team2Name, tournament);
+            return String.format("Game between teams '%s' and '%s' added to tournament '%s'", team1Name, team2Name, tournamentName);
+        } catch (TournamentDoesNotExistException e) {
+            return String.format("Tournament with name '%s' does not exist", tournamentName);
+        } catch (GameAlreadyInTournamentException e) {
+            return String.format("Game between teams '%s' and '%s' already exists in tournament '%s'", team1Name, team2Name, tournamentName);
+        }        
     }
 }

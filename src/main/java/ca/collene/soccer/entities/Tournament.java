@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.LazyCollection;
@@ -35,6 +37,13 @@ public class Tournament {
     )
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Team> teams = new ArrayList<>();
+
+    @OneToMany(
+        cascade = CascadeType.ALL,
+        orphanRemoval = true)
+    @JoinColumn(name = "tournament_id")    
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private List<Game> games = new ArrayList<>();
 
     public Tournament() {
 
@@ -61,6 +70,20 @@ public class Tournament {
     public boolean hasTeam(Team team) {
         return teams.contains(team);
     }
+
+    public void addGame(Team team1, Team team2) {
+        games.add(new Game.With().teams(team1, team2)
+                                    .tournament(this)
+                            .build());
+    }
+    public List<Game> getGames() {
+        return games;
+    }
+    public boolean hasGameWithTeams(Team team1, Team team2) {
+        return games.stream()
+                        .filter(game -> game.hasTeam(team1) && game.hasTeam(team2))
+                        .count() > 0;
+    }    
 
     @Override
     public boolean equals(Object o) {

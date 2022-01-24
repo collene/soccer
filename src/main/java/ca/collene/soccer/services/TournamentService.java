@@ -36,13 +36,30 @@ public class TournamentService {
         return tournament;
     }
 
-    public void addTeamToTournament(String teamName, String tournamentName) throws TournamentDoesNotExistException, TeamAlreadyInTournamentException {
-        Tournament tournament = getTournament(tournamentName);
+    public void addTeamToTournament(String teamName, Tournament tournament) throws TeamAlreadyInTournamentException {        
         Team team = teamService.getOrCreateTeam(teamName);
         if(tournament.hasTeam(team)) {
-            throw new TeamAlreadyInTournamentException("Team " + teamName + " is already in tournament " + tournamentName);
+            throw new TeamAlreadyInTournamentException("Team " + teamName + " is already in tournament " + tournament.getName());
         }
         tournament.addTeam(team);
         tournamentRepository.save(tournament);
+    }
+    private Team ensureTeamInTournament(String teamName, Tournament tournament) {
+        Team team = teamService.getOrCreateTeam(teamName);
+        if(!tournament.hasTeam(team)) {
+            tournament.addTeam(team);
+        }
+        tournamentRepository.save(tournament);
+        return team;
+    }
+
+    public void addGameToTournament(String team1Name, String team2Name, Tournament tournament) throws GameAlreadyInTournamentException {
+        Team team1 = ensureTeamInTournament(team1Name, tournament);
+        Team team2 = ensureTeamInTournament(team2Name, tournament);
+        if(tournament.hasGameWithTeams(team1, team2)) {
+            throw new GameAlreadyInTournamentException("The game between teams " + team1Name + " and " + team2Name + " already exists in tournament " + tournament.getName());
+        }        
+        tournament.addGame(team1, team2);    
+        tournamentRepository.save(tournament);    
     }
 }

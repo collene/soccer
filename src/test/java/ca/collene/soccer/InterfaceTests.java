@@ -176,6 +176,39 @@ public class InterfaceTests {
         assertThat(addPlayer, is("Player with number '" + playerNumber + "' is already on team '" + teamName + "'"));
     }
 
+    @Test
+    public void add_game_to_tournament_command_works() {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";        
+        executeCommandInShell(String.format("create-tournament '%s'", tournamentName));
+        String command = String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName);
+        Object addGame = executeCommandInShell(command);
+        assertThat(addGame, is("Game between teams '" + team1Name + "' and '" + team2Name + "' added to tournament '" + tournamentName + "'"));
+    }
+
+    @Test
+    public void add_game_to_tournament_that_does_not_exist_displays_error() {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        String command = String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName);
+        Object addGame = executeCommandInShell(command);
+        assertThat(addGame, is("Tournament with name '" + tournamentName + "' does not exist"));
+    }
+
+    @Test
+    public void add_game_twice_to_tournament_displays_error() {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        executeCommandInShell(String.format("create-tournament %s", tournamentName));
+        String command = String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName);
+        executeCommandInShell(command);
+        Object addGameAgain = executeCommandInShell(command);
+        assertThat(addGameAgain, is("Game between teams '" + team1Name + "' and '" + team2Name + "' already exists in tournament '" + tournamentName + "'"));
+    }
+
     private Object executeCommandInShell(String commandString) {
         try(FileInputProvider inputProvider = new FileInputProvider(new StringReader(commandString), parser)) {
             Input input = inputProvider.readInput();
