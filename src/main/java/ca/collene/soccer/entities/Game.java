@@ -1,9 +1,13 @@
 package ca.collene.soccer.entities;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,11 +16,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+
+import ca.collene.soccer.services.GameNotScoredException;
+import ca.collene.soccer.services.InvalidScoreException;
+import ca.collene.soccer.services.TeamNotInGameException;
 
 @Entity(name = "game")
 @Table(name = "game")
@@ -37,6 +46,16 @@ public class Game {
 
     @ManyToOne
     private Tournament tournament;
+
+    @Size(max = 2)
+    @ElementCollection
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @CollectionTable(
+        name = "game_score",
+        joinColumns = @JoinColumn(name = "game_id")
+    )
+    @MapKeyJoinColumn(name = "team_id")
+    private Map<Team, Integer> points = new HashMap<>();
 
     public Game() {
 
@@ -60,6 +79,26 @@ public class Game {
     public boolean hasTeam(Team team) {
         return teams.contains(team);
     }    
+
+    public boolean hasScore() {
+        return !points.isEmpty();
+    }
+    public int getPointsForTeam(Team team) throws TeamNotInGameException, GameNotScoredException {
+        if(!hasTeam(team)) {
+            throw new TeamNotInGameException("The team " + team.getName() + " is not in this game");
+        }
+        if(!hasScore()) {
+            throw new GameNotScoredException("This game has not yet been scored");
+        }        
+        return points.get(team);
+    }
+    public void setScore(Team team1, int team1Points, Team team2, int team2Points) throws InvalidScoreException {
+        if(team1Points < 0 || team2Points < 0) {
+            throw new InvalidScoreException("Score points must be positive values");
+        }
+        points.put(team1, team1Points);
+        points.put(team2, team2Points);
+    }
 
     @Override
     public boolean equals(Object o) {

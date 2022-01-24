@@ -19,6 +19,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import ca.collene.soccer.services.GameDoesNotExistException;
+import ca.collene.soccer.services.InvalidScoreException;
+
 @Entity(name = "tournament")
 @Table(name = "tournament")
 public class Tournament {
@@ -83,7 +86,20 @@ public class Tournament {
         return games.stream()
                         .filter(game -> game.hasTeam(team1) && game.hasTeam(team2))
                         .count() > 0;
-    }    
+    }
+    public Game getGame(Team team1, Team team2) throws GameDoesNotExistException {
+        if(!hasGameWithTeams(team1, team2)) {
+            throw new GameDoesNotExistException("The game with teams " + team1.getName() + " and " +team2.getName() + " does not exist in this tournament");
+        }
+        return games.stream()
+                        .filter(game -> game.hasTeam(team1) && game.hasTeam(team2))
+                        .findFirst()
+                        .get();
+    }
+    public void scoreGame(Team team1, int team1Points, Team team2, int team2Points) throws GameDoesNotExistException, InvalidScoreException {
+        Game game = getGame(team1, team2);
+        game.setScore(team1, team1Points, team2, team2Points);
+    }
 
     @Override
     public boolean equals(Object o) {

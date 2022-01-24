@@ -8,11 +8,15 @@ import org.springframework.shell.standard.ShellOption;
 import ca.collene.soccer.entities.Tournament;
 import ca.collene.soccer.services.CoachAlreadyOnTeamException;
 import ca.collene.soccer.services.GameAlreadyInTournamentException;
+import ca.collene.soccer.services.GameDoesNotExistException;
+import ca.collene.soccer.services.InvalidGameException;
+import ca.collene.soccer.services.InvalidScoreException;
 import ca.collene.soccer.services.NameAlreadyExistsException;
 import ca.collene.soccer.services.NumberAlreadyInUseException;
 import ca.collene.soccer.services.PersonService;
 import ca.collene.soccer.services.PlayerAlreadyOnTeamException;
 import ca.collene.soccer.services.TeamAlreadyInTournamentException;
+import ca.collene.soccer.services.TeamDoesNotExistException;
 import ca.collene.soccer.services.TeamService;
 import ca.collene.soccer.services.TournamentDoesNotExistException;
 import ca.collene.soccer.services.TournamentService;
@@ -107,6 +111,29 @@ public class Commands {
             return String.format("Tournament with name '%s' does not exist", tournamentName);
         } catch (GameAlreadyInTournamentException e) {
             return String.format("Game between teams '%s' and '%s' already exists in tournament '%s'", team1Name, team2Name, tournamentName);
+        } catch (InvalidGameException e) {
+            return String.format("The team '%s' can not play itself ('%s') in tournament '%s'", team1Name, team2Name, tournamentName);
+        }     
+    }
+
+    @ShellMethod(value = "Score game between two teams in tournament.", group = "Tournament Commands")
+    public String scoreGameInTournament(@ShellOption({"--team1"}) String team1Name,
+                                        @ShellOption({"--points1"}) int team1Points,
+                                        @ShellOption({"--team2"}) String team2Name,
+                                        @ShellOption({"--points2"})int team2Points,
+                                        @ShellOption({"--tournament"}) String tournamentName) {
+        try {
+            Tournament tournament = tournamentService.getTournament(tournamentName);
+            tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
+            return String.format("Score for game in tournament '%s' set: team '%s' scored %d points and team '%s' scored %d points", tournamentName, team1Name, team1Points, team2Name, team2Points);
+        } catch (TournamentDoesNotExistException e) {
+            return String.format("Tournament with name '%s' does not exist", tournamentName);
+        } catch (TeamDoesNotExistException e) {
+            return String.format("Score for game in tournament '%s' NOT set because either team '%s' or team '%s' does not exist", tournamentName, team1Name, team2Name);
+        } catch (GameDoesNotExistException e) {
+            return String.format("Score for game between team '%s' and team '%s' NOT set because that game does not exist in tournament '%s'", team1Name, team2Name, tournamentName);
+        } catch (InvalidScoreException e) {
+            return String.format("Score for game in tournament '%s' NOT set because the score is invalid: team '%s' scored %d points and team '%s' scored %d points", tournamentName, team1Name, team1Points, team2Name, team2Points);
         }        
     }
 }

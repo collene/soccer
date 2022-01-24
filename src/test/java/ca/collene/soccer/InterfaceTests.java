@@ -209,6 +209,32 @@ public class InterfaceTests {
         assertThat(addGameAgain, is("Game between teams '" + team1Name + "' and '" + team2Name + "' already exists in tournament '" + tournamentName + "'"));
     }
 
+    @Test
+    public void add_game_where_team_plays_itself_displays_error() {
+        final String tournamentName = "Test Tournament";
+        final String teamName = "One and only Team";
+        executeCommandInShell(String.format("create-tournament '%s'", tournamentName));
+        String command = String.format("add-game-to-tournament '%s' '%s' '%s'", teamName, teamName, tournamentName);
+        Object addInvalidGame = executeCommandInShell(command);
+        assertThat(addInvalidGame, is("The team '" + teamName + "' can not play itself ('" + teamName + "') in tournament '" + tournamentName + "'"));
+    }
+
+    @Test
+    public void score_command_works() {
+        final String tournamentName = "Test Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int team1Points = 1;
+        final int team2Points = 2;
+        executeCommandInShell(String.format("create-tournament '%s'", tournamentName));
+        executeCommandInShell(String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName));
+        String command = String.format("score-game-in-tournament '%s' %d '%s' %d '%s'", team1Name, team1Points, team2Name, team2Points, tournamentName);
+        Object scoreGame = executeCommandInShell(command);
+        assertThat(scoreGame, is("Score for game in tournament '" + tournamentName + "' set: team '" + team1Name + "' scored " + team1Points + " points and team '" + team2Name + "' scored " + team2Points + " points"));     
+    }
+
+    // TODO:  LEFT OFF: remainder of interface command tests
+
     private Object executeCommandInShell(String commandString) {
         try(FileInputProvider inputProvider = new FileInputProvider(new StringReader(commandString), parser)) {
             Input input = inputProvider.readInput();

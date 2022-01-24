@@ -6,7 +6,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.collection.IsIn.in;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,13 @@ import ca.collene.soccer.entities.Team;
 import ca.collene.soccer.entities.Tournament;
 import ca.collene.soccer.repositories.TournamentRepository;
 import ca.collene.soccer.services.GameAlreadyInTournamentException;
+import ca.collene.soccer.services.GameDoesNotExistException;
+import ca.collene.soccer.services.InvalidGameException;
+import ca.collene.soccer.services.InvalidScoreException;
 import ca.collene.soccer.services.NameAlreadyExistsException;
 import ca.collene.soccer.services.TeamAlreadyInTournamentException;
 import ca.collene.soccer.services.TeamDoesNotExistException;
+import ca.collene.soccer.services.TeamNotInGameException;
 import ca.collene.soccer.services.TeamService;
 import ca.collene.soccer.services.TournamentDoesNotExistException;
 import ca.collene.soccer.services.TournamentService;
@@ -225,7 +231,7 @@ public class TournamentServiceTests {
         assertThat(teamService.getTeam(team2Name), is(in(game.getTeams())));
     }
 
-    // adding a game to a tournmant that already has these teams fails
+    // adding a game to a tournament that already has these teams fails
     @Test
     public void add_game_that_already_exists_in_tournament_fails() throws Exception {
         final String tournamentName = "Tournament";
@@ -253,6 +259,18 @@ public class TournamentServiceTests {
         assertThat(tournament.getGames(), hasSize(1));
     }
     
+    // a team can not play itself
+    @Test
+    public void add_game_with_same_team_fails() throws Exception {
+        final String tournamentName = "Tournament";
+        final String teamName = "One and Only Team";
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        assertThrows(InvalidGameException.class, () -> {
+            tournamentService.addGameToTournament(teamName, teamName, tournament);
+        });
+        assertThat(tournament.getGames(), is(empty()));
+    }
+
     // adding multiple games to a tournament works
     @Test
     public void add_multiple_games_to_a_tournament_works() throws Exception {
@@ -300,5 +318,193 @@ public class TournamentServiceTests {
 
         assertThat(tournament2.getGames(), hasSize(5));
         assertThat(tournament2.getTeams(), hasSize(4));
+    }
+
+    // adding score to game works
+    @Test
+    public void score_game_works() throws Exception {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int team1Points = 1;
+        final int team2Points = 2;        
+
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        tournamentService.addGameToTournament(team1Name, team2Name, tournament);
+
+        assertThat(tournament.getGames(), hasSize(1));
+        assertFalse(tournament.getGames().get(0).hasScore());
+
+        tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
+        Game game = tournament.getGames().get(0);
+        assertTrue(game.hasScore());
+        Team team1 = teamService.getTeam(team1Name);
+        Team team2 = teamService.getTeam(team2Name);
+        assertThat(game.getPointsForTeam(team1), is(equalTo(team1Points)));
+        assertThat(game.getPointsForTeam(team2), is(equalTo(team2Points)));
+    }
+
+    @Test
+    public void score_game_with_opposite_order_as_added_to_tournament_still_works() throws Exception {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int team1Points = 1;
+        final int team2Points = 2;        
+
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        tournamentService.addGameToTournament(team1Name, team2Name, tournament);
+
+        assertThat(tournament.getGames(), hasSize(1));
+        assertFalse(tournament.getGames().get(0).hasScore());
+
+        tournamentService.scoreGameInTournament(team2Name, team2Points, team1Name, team1Points, tournament);
+        Game game = tournament.getGames().get(0);
+        assertTrue(game.hasScore());
+        Team team1 = teamService.getTeam(team1Name);
+        Team team2 = teamService.getTeam(team2Name);
+        assertThat(game.getPointsForTeam(team1), is(equalTo(team1Points)));
+        assertThat(game.getPointsForTeam(team2), is(equalTo(team2Points)));
+    }
+
+    // adding score to a game with a wrong team fails (game doesn't exist)
+    @Test
+    public void score_game_with_wrong_team_fails() throws Exception {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final String team3Name = "Team not in game";
+        final int team1Points = 1;
+        final int team2Points = 2;
+
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        tournamentService.addTeamToTournament(team1Name, tournament);
+        tournamentService.addTeamToTournament(team2Name, tournament);
+        tournamentService.addTeamToTournament(team3Name, tournament);
+        tournamentService.addGameToTournament(team1Name, team2Name, tournament);
+        
+        assertThrows(GameDoesNotExistException.class, () -> {
+            tournamentService.scoreGameInTournament(team1Name, team1Points, team3Name, team2Points, tournament);            
+        });
+        Game game = tournament.getGames().get(0);
+        assertFalse(game.hasScore());
+    }
+
+    // getting score for a game for a wrong team fails
+    @Test
+    public void get_score_with_wrong_team_fails() throws Exception {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final String team3Name = "Team not in game";
+        final int team1Points = 1;
+        final int team2Points = 2;
+
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        tournamentService.addTeamToTournament(team1Name, tournament);
+        tournamentService.addTeamToTournament(team2Name, tournament);
+        tournamentService.addTeamToTournament(team3Name, tournament);
+        tournamentService.addGameToTournament(team1Name, team2Name, tournament);
+
+        tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
+        Game game = tournament.getGames().get(0);
+        Team team3 = teamService.getTeam(team3Name);
+        
+        assertThrows(TeamNotInGameException.class, () -> {
+            game.getPointsForTeam(team3);
+        });        
+    }
+
+    // adding negative points fails
+    @Test
+    public void setting_negative_points_in_score_fails_and_score_not_saved() throws Exception {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int team1Points = 1;
+        final int team2Points = -2;        
+
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        tournamentService.addGameToTournament(team1Name, team2Name, tournament);
+
+        assertThat(tournament.getGames(), hasSize(1));
+        assertFalse(tournament.getGames().get(0).hasScore());
+
+        assertThrows(InvalidScoreException.class, () -> {
+            tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
+        });
+
+        assertFalse(tournament.getGames().get(0).hasScore());
+    }
+
+    // adding tied score works
+    @Test
+    public void setting_tied_score_works() throws Exception {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int teamPoints = 1;        
+
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        tournamentService.addGameToTournament(team1Name, team2Name, tournament);
+
+        assertThat(tournament.getGames(), hasSize(1));
+        assertFalse(tournament.getGames().get(0).hasScore());
+
+        tournamentService.scoreGameInTournament(team1Name, teamPoints, team2Name, teamPoints, tournament);
+        Game game = tournament.getGames().get(0);
+        assertTrue(game.hasScore());
+        Team team1 = teamService.getTeam(team1Name);
+        Team team2 = teamService.getTeam(team2Name);
+        assertThat(game.getPointsForTeam(team1), is(equalTo(teamPoints)));
+        assertThat(game.getPointsForTeam(team2), is(equalTo(teamPoints)));
+    }
+
+    // setting score for a game that hasn't been added fails and doesn't add the teams to a tournament
+    @Test
+    public void setting_score_for_game_that_does_not_exist_where_teams_also_not_in_tournament_fails_and_does_not_add_teams_to_tournament() throws Exception {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";        
+        final int team1Points = 1;
+        final int team2Points = 2;
+
+        Tournament tournament = tournamentService.createTournament(tournamentName);
+        teamService.createTeam(team1Name);
+        teamService.createTeam(team2Name);
+        
+        assertThat(tournament.getTeams(), is(empty()));
+        assertThat(tournament.getGames(), hasSize(0));
+
+        assertThrows(GameDoesNotExistException.class, () -> {
+            tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
+        });
+
+        assertThat(tournament.getTeams(), is(empty()));
+    }
+
+    // setting score for a game where a team doesn't exist fails and doesn't add the team to the tournament nor the team service
+    @Test
+    public void setting_score_for_game_where_team_does_not_exist_fails_and_does_not_add_team_to_tournament_nor_team_service() throws Exception {
+        final String tournamentName = "Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";        
+        final int team1Points = 1;
+        final int team2Points = 2;
+
+        Tournament tournament = tournamentService.createTournament(tournamentName);        
+        teamService.createTeam(team2Name);
+        
+        assertThat(tournament.getTeams(), is(empty()));
+        assertThat(tournament.getGames(), hasSize(0));
+
+        assertThrows(TeamDoesNotExistException.class, () -> {
+            tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
+        });
+
+        assertThat(tournament.getTeams(), is(empty()));
+        assertThrows(TeamDoesNotExistException.class, () -> {
+            teamService.getTeam(team1Name);
+        });
     }
 }
