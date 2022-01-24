@@ -103,6 +103,41 @@ Collene Hansen
 
 Visit my blog: [https://uncommentedout.com](https://uncommentedout.com)
 
+## Approach
+As much as possible, I tried to stick to the MVP principle (minimal viable product) and have a working (but not fully functional) application at the end of each iteration.  As such, I made several simplifying assumptions but tried to keep the design flexible enough to allow for extension in the future.  In particular, the entities are very "bare bones".  A realistic application would have a more complete model, depending on requirements.  I created the entities with enough information to complete basic requirements, but no more.
+
+I also tried to keep the user interface simple for the user, considering they have to type each of the commands.  In some situations, I allowed the user to bypass steps.  For example, a user just needs to create a game between two teams, and this will create the teams and add them automatically to the tournament if they aren't already added.  If a step can not be missed, an error message will indicate to the user what step needs to be completed first.
+
+## Assumptions
+* Multiple tournaments will be possible.  The interface should allow you to create new tournaments or add items to existing ones.
+* Teams exist outside of tournaments, and it is possible that teams will participate in multiple tournaments.
+* Coaches and players exist outside of tournaments, and it is possible that they will belong to multiple teams in multiple roles.
+* While there are different types of tournaments, I assumed that the application would only score a round-robin tournament, where multiple games are played and the winner is determined by a win/loss/tie calculation.
+* Sports tournaments have restrictions in place to make sure there is fair game play (such as one player cannot play on more than one team in a tournament).  I assumed that external judges would keep track of such restrictions and the task for this application is simply to calculate scores and the winner.
+* The full player list for a team is also the "roster" for a game in the tournament.
+* Lazy loading of entities is acceptable for performance for this application.  There won't be a large number of tournaments or teams.
+* I assumed that the points awarded for a Win is 3, a Tie is 2, and a Loss is 1.
+
+## Known Issues
+* Names are case-sensitive, so names with the same spelling but different capitalization will be considered as two separate items.  For example:  'Jane doe' and 'Jane Doe' represent two different people, and 'Ladybugs' and 'LADYBUGS' represent two different teams.
+
+## Future Work
+* Allow the user to specify a default tournament so they don't have to specify the tournament as a parameter every time.  The CLI prompt should indicate that a default tournament has been selected (for example the prompt will change to soccer:>tournamentName:>
+* Before allowing a team to be added to a game or a tournament, make sure that it has at least 5 players and 1 coach.
+* Extend the scoring to allow for knockout tournaments (with quarter finals, semi finals, etc).
+* Allow full CRUD capabilities for entities in the interface.
+* Switch to a visual interface instead of the CLI for more flexibility.
+* Add checkstyle and code coverage plugins to Maven build.
+* Add integration test that loads multiple commands from a file and makes sure the calculations work over many commands.
+* Create configuration for multiple environments (dev, test, prod).
+* Switch to a different database provider instead of using the in-memory database.
+* Extend to create REST web services to have multiple consumers of the services.
+* Create a "list" command to show the games, teams, players, etc. in a tournament.  
+* Fix the countable nouns (for example 1 point vs 1 point(s)).
+* Allow a user to auto generate a game list for a tournament from the current list of teams in the tournament.
+* Make the tally configurable by allowing different values for the Win, Loss, Tie calculation.
+* ...
+
 ## Acknowledgments
 
 Inspiration, code snippets, etc:
