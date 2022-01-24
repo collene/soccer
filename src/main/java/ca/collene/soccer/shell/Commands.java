@@ -45,7 +45,7 @@ public class Commands {
     private PersonService personService;
 
     @ShellMethod(value = "Create new tournament with specified name.", group = "Tournament Commands")
-    public String createTournament(@ShellOption({"-N", "--name"}) String name) {
+    public String createTournament(@ShellOption(value = {"-N", "--name"}, help ="Name of the tournament.") String name) {
         try {
             tournamentService.createTournament(name);
             return String.format("Tournament with name '%s' created", name);
@@ -55,7 +55,8 @@ public class Commands {
     }
 
     @ShellMethod(value = "Add team to tournament.", group = "Tournament Commands")
-    public String addTeamToTournament(@ShellOption({"--team"}) String teamName, @ShellOption({"--tournament"}) String tournamentName) {
+    public String addTeamToTournament(@ShellOption(value = {"--team"}, help = "Name of the team.") String teamName, 
+                                        @ShellOption(value = {"--tournament"}, help = "Name of the tournament.") String tournamentName) {
         try {
             Tournament tournament = tournamentService.getTournament(tournamentName);
             tournamentService.addTeamToTournament(teamName, tournament);
@@ -68,7 +69,7 @@ public class Commands {
     }    
 
     @ShellMethod(value = "Create new team with specified name.", group = "Team Commands")
-    public String createTeam(@ShellOption({"-N", "--name"}) String name) {
+    public String createTeam(@ShellOption(value = {"-N", "--name"}, help = "Name of the team.") String name) {
         try {
             teamService.createTeam(name);
             return String.format("Team with name '%s' created", name);
@@ -78,7 +79,7 @@ public class Commands {
     }
 
     @ShellMethod(value = "Create new person with specified name.", group = "Person Commands")
-    public String createPerson(@ShellOption({"-N", "--name"}) String name) {
+    public String createPerson(@ShellOption(value = {"-N", "--name"}, help = "Name of the person.") String name) {
         try {
             personService.createPerson(name);
             return String.format("Person with name '%s' created", name);
@@ -88,7 +89,8 @@ public class Commands {
     }
 
     @ShellMethod(value = "Add coach to team.", group = "Team Commands")
-    public String addCoachToTeam(@ShellOption({"--coach"})String personName, @ShellOption({"--team"})String teamName) {
+    public String addCoachToTeam(@ShellOption(value = {"--coach"}, help = "Name of the coach.")String personName, 
+                                    @ShellOption(value = {"--team"}, help = "Name of the team.")String teamName) {
         try {
             teamService.addCoachToTeam(personName, teamName);
             return String.format("Person with name '%s' added as a coach to team '%s'", personName, teamName);
@@ -98,9 +100,9 @@ public class Commands {
     }
 
     @ShellMethod(value = "Add player to team.", group = "Team Commands")
-    public String addPlayerToTeam(@ShellOption({"--player"}) String personName, 
-                                    @ShellOption({"--team"}) String teamName, 
-                                    @ShellOption({"--number"}) int playerNumber) {
+    public String addPlayerToTeam(@ShellOption(value = {"--player"}, help = "Name of the player.") String personName, 
+                                    @ShellOption(value = {"--team"}, help = "Name of the team.") String teamName, 
+                                    @ShellOption(value = {"--number"}, help = "Number of the player on this team.") int playerNumber) {
         try {
             teamService.addPlayerToTeam(personName, teamName, playerNumber);
             return String.format("Person with name '%s' added as a player to team '%s' with number '%d'", personName, teamName, playerNumber);
@@ -112,9 +114,9 @@ public class Commands {
     }
 
     @ShellMethod(value = "Add game between two teams to tournament.", group = "Tournament Commands")
-    public String addGameToTournament(@ShellOption({"--team1"}) String team1Name, 
-                                        @ShellOption({"--team2"}) String team2Name, 
-                                        @ShellOption({"--tournament"}) String tournamentName) {
+    public String addGameToTournament(@ShellOption(value = {"--team1"}, help = "Name of the first team.") String team1Name, 
+                                        @ShellOption(value = {"--team2"}, help = "Name of the second team.") String team2Name, 
+                                        @ShellOption(value = {"--tournament"}, help = "Name of the tournament.") String tournamentName) {
         try {
             Tournament tournament = tournamentService.getTournament(tournamentName);
             tournamentService.addGameToTournament(team1Name, team2Name, tournament);
@@ -129,11 +131,11 @@ public class Commands {
     }
 
     @ShellMethod(value = "Score game between two teams in tournament.", group = "Tournament Commands")
-    public String scoreGameInTournament(@ShellOption({"--team1"}) String team1Name,
-                                        @ShellOption({"--points1"}) int team1Points,
-                                        @ShellOption({"--team2"}) String team2Name,
-                                        @ShellOption({"--points2"})int team2Points,
-                                        @ShellOption({"--tournament"}) String tournamentName) {
+    public String scoreGameInTournament(@ShellOption(value = {"--team1"}, help = "Name of the first team.") String team1Name,
+                                        @ShellOption(value = {"--points1"}, help = "Points scored by the first team.") int team1Points,
+                                        @ShellOption(value = {"--team2"}, help = "Name of the second team.") String team2Name,
+                                        @ShellOption(value = {"--points2"}, help = "Points scored by the second team.")int team2Points,
+                                        @ShellOption(value = {"--tournament"}, help = "Name of the tournament.") String tournamentName) {
         try {
             Tournament tournament = tournamentService.getTournament(tournamentName);
             tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
@@ -150,7 +152,7 @@ public class Commands {
     }
 
     @ShellMethod(value = "Report game results for tournament.", group = "Tournament Commands")
-    public String reportTournamentResults(@ShellOption({"--tournament"}) String tournamentName) throws TournamentDoesNotExistException {
+    public String reportTournamentResults(@ShellOption(value = {"--tournament"}, help = "Name of the tournament.") String tournamentName) throws TournamentDoesNotExistException {
         LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
         headers.put("teamName", "Team Name");
         headers.put("wins", "W");
