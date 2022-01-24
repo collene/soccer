@@ -1,11 +1,21 @@
 package ca.collene.soccer.shell;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.table.BeanListTableModel;
+import org.springframework.shell.table.BorderStyle;
+import org.springframework.shell.table.TableBuilder;
+import org.springframework.shell.table.TableModel;
 
 import ca.collene.soccer.entities.Tournament;
+import ca.collene.soccer.models.Tally;
 import ca.collene.soccer.services.CoachAlreadyOnTeamException;
 import ca.collene.soccer.services.GameAlreadyInTournamentException;
 import ca.collene.soccer.services.GameDoesNotExistException;
@@ -23,6 +33,8 @@ import ca.collene.soccer.services.TournamentService;
 
 @ShellComponent
 public class Commands {
+    private Logger logger = LoggerFactory.getLogger(Commands.class);
+
     @Autowired
     private TournamentService tournamentService;
 
@@ -135,5 +147,23 @@ public class Commands {
         } catch (InvalidScoreException e) {
             return String.format("Score for game in tournament '%s' NOT set because the score is invalid: team '%s' scored %d point(s) and team '%s' scored %d point(s)", tournamentName, team1Name, team1Points, team2Name, team2Points);
         }        
+    }
+
+    @ShellMethod(value = "Report game results for tournament.", group = "Tournament Commands")
+    public String reportTournamentResults(@ShellOption({"--tournament"}) String tournamentName) throws TournamentDoesNotExistException {
+        LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
+        headers.put("teamName", "Team Name");
+        headers.put("wins", "W");
+        headers.put("losses", "L");
+        headers.put("ties", "T");
+        headers.put("total", "TOTAL");
+        Tournament tournament = tournamentService.getTournament(tournamentName);
+        List<Tally> tallies = tournament.getTally();
+        logger.debug("Tallies: " + tallies);
+        TableModel model = new BeanListTableModel<>(tallies, headers);
+        TableBuilder tableBuilder = new TableBuilder(model);
+        tableBuilder.addInnerBorder(BorderStyle.fancy_light);
+        tableBuilder.addHeaderBorder(BorderStyle.fancy_double);
+        return tableBuilder.build().render(100);
     }
 }

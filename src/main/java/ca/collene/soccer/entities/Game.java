@@ -23,6 +23,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import ca.collene.soccer.models.Tally.TallyType;
 import ca.collene.soccer.services.GameNotScoredException;
 import ca.collene.soccer.services.InvalidScoreException;
 import ca.collene.soccer.services.TeamNotInGameException;
@@ -55,7 +56,7 @@ public class Game {
         joinColumns = @JoinColumn(name = "game_id")
     )
     @MapKeyJoinColumn(name = "team_id")
-    private Map<Team, Integer> points = new HashMap<>();
+    private Map<Team, Integer> points = new HashMap<>();    
 
     public Game() {
 
@@ -92,12 +93,34 @@ public class Game {
         }        
         return points.get(team);
     }
+    public int getPointsForOtherTeam(Team team) throws TeamNotInGameException, GameNotScoredException {
+        Team otherTeam = teams.stream().filter(t -> !t.equals(team))
+                .findFirst()
+                .get();
+        return getPointsForTeam(otherTeam);
+    }
     public void setScore(Team team1, int team1Points, Team team2, int team2Points) throws InvalidScoreException {
         if(team1Points < 0 || team2Points < 0) {
             throw new InvalidScoreException("Score points must be positive values");
         }
         points.put(team1, team1Points);
         points.put(team2, team2Points);
+    }
+    public TallyType getTallyTypeForTeam(Team team) {
+        int thisTeamPoints;
+        try {
+            thisTeamPoints = getPointsForTeam(team);
+            int otherTeamPoints = getPointsForOtherTeam(team);
+            if(thisTeamPoints == otherTeamPoints) {
+                return TallyType.TIE;
+            } else if(thisTeamPoints > otherTeamPoints) {
+                return TallyType.WIN;
+            } else {
+                return TallyType.LOSS;
+            }
+        } catch (TeamNotInGameException | GameNotScoredException e) {
+            return TallyType.UNSCORED;
+        }        
     }
 
     @Override

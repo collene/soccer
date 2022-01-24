@@ -1,7 +1,9 @@
 package ca.collene.soccer;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -289,6 +291,22 @@ public class InterfaceTests {
         String command = String.format("score-game-in-tournament '%s' %d '%s' %d '%s'", team1Name, team1Points, team2Name, team2Points, tournamentName);
         Object scoreGame = executeCommandInShell(command);
         assertThat(scoreGame, is("Score for game in tournament '" + tournamentName + "' NOT set because the score is invalid: team '" + team1Name + "' scored " + team1Points + " point(s) and team '" + team2Name + "' scored " + team2Points + " point(s)"));
+    }
+
+    @Test
+    public void report_game_results_works() {
+        final String tournamentName = "Test Tournament";
+        final String team1Name = "Team One";
+        final String team2Name = "Team Two";
+        final int team1Points = 1;
+        final int team2Points = 2;
+        executeCommandInShell(String.format("create-tournament '%s'", tournamentName));
+        executeCommandInShell(String.format("add-game-to-tournament '%s' '%s' '%s'", team1Name, team2Name, tournamentName));
+        executeCommandInShell(String.format("score-game-in-tournament '%s' %d '%s' %d '%s'", team1Name, team1Points, team2Name, team2Points, tournamentName));        
+
+        String command = String.format("report-tournament-results '%s'", tournamentName);
+        Object report = executeCommandInShell(command);
+        assertThat((String)report, is(not(emptyString())));
     }
 
     private Object executeCommandInShell(String commandString) {

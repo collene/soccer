@@ -1,5 +1,7 @@
 package ca.collene.soccer.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,8 @@ import ca.collene.soccer.repositories.TeamRepository;
 
 @Service
 public class TeamService {
+    private Logger logger = LoggerFactory.getLogger(TeamService.class);
+
     @Autowired
     private TeamRepository teamRepository;
 
@@ -20,6 +24,7 @@ public class TeamService {
         Team newTeam = new Team.With().name(name)
                             .build();
         try {
+            logger.debug("Creating team with name " + name);
             return teamRepository.save(newTeam);
         } catch(DataIntegrityViolationException e) {
             throw new NameAlreadyExistsException("A team with name " + name + " already exists");

@@ -1,8 +1,10 @@
 package ca.collene.soccer.entities;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,16 +17,24 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ca.collene.soccer.models.Tally;
+import ca.collene.soccer.models.Tally.TallyType;
 import ca.collene.soccer.services.GameDoesNotExistException;
 import ca.collene.soccer.services.InvalidScoreException;
 
 @Entity(name = "tournament")
 @Table(name = "tournament")
 public class Tournament {
+    @Transient
+    private Logger logger = LoggerFactory.getLogger(Tournament.class);
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -99,6 +109,25 @@ public class Tournament {
     public void scoreGame(Team team1, int team1Points, Team team2, int team2Points) throws GameDoesNotExistException, InvalidScoreException {
         Game game = getGame(team1, team2);
         game.setScore(team1, team1Points, team2, team2Points);
+    }
+
+    public List<Game> getGamesForTeam(Team team) {
+        return games.stream()
+                    .filter(game -> game.hasTeam(team))
+                    .collect(Collectors.toList());
+    }
+    public List<TallyType> getTallyTypesForTeam(Team team) {
+        return getGamesForTeam(team).stream()
+                    .map(game -> game.getTallyTypeForTeam(team))
+                    .collect(Collectors.toList());
+    }
+
+    public List<Tally> getTally() {
+        logger.debug("Getting tally for tournament, there are " + teams.size() + " teams");
+        return teams.stream()
+                    .map(team -> new Tally(team.getName(), getTallyTypesForTeam(team)))
+                    .sorted(Comparator.comparingLong(tally -> ((Tally) tally).getTotal()).reversed())
+                    .collect(Collectors.toList());
     }
 
     @Override

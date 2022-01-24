@@ -1,5 +1,7 @@
 package ca.collene.soccer.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -10,7 +12,7 @@ import ca.collene.soccer.repositories.TournamentRepository;
 
 @Service
 public class TournamentService {
-    //private Logger logger = LoggerFactory.getLogger(TournamentService.class);
+    private Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
     @Autowired
     private TournamentRepository tournamentRepository;
@@ -48,14 +50,15 @@ public class TournamentService {
         Team team = teamService.getOrCreateTeam(teamName);
         if(!tournament.hasTeam(team)) {
             tournament.addTeam(team);
-        }
-        tournamentRepository.save(tournament);
+        }        
         return team;
     }
 
     public void addGameToTournament(String team1Name, String team2Name, Tournament tournament) throws GameAlreadyInTournamentException, InvalidGameException {        
+        logger.debug("Ensuring teams in tournament. Number teams before: " + tournament.getTeams().size());
         Team team1 = ensureTeamInTournament(team1Name, tournament);
         Team team2 = ensureTeamInTournament(team2Name, tournament);
+        logger.debug("End of ensuring teams in tournament.  Number teams after: " + tournament.getTeams().size());
         if(team1.equals(team2)) {
             throw new InvalidGameException("The team " + team1Name + " can not play itself in tournament " + tournament);
         }
