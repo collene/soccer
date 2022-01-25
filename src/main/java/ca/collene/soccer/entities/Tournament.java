@@ -28,18 +28,26 @@ import ca.collene.soccer.models.Tally;
 import ca.collene.soccer.models.Tally.TallyType;
 import ca.collene.soccer.services.GameDoesNotExistException;
 import ca.collene.soccer.services.InvalidScoreException;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity(name = "tournament")
 @Table(name = "tournament")
+@ToString
 public class Tournament {
     @Transient
     private Logger logger = LoggerFactory.getLogger(Tournament.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
+    @ToString.Exclude 
     private Long id;
 
     @Column(unique = true)
+    @Getter
+    @Setter
     private String name;
 
     @ManyToMany
@@ -49,6 +57,7 @@ public class Tournament {
         inverseJoinColumns = @JoinColumn(name = "team_id")
     )
     @LazyCollection(LazyCollectionOption.FALSE)
+    @Getter
     private List<Team> teams = new ArrayList<>();
 
     @OneToMany(
@@ -56,6 +65,7 @@ public class Tournament {
         orphanRemoval = true)
     @JoinColumn(name = "tournament_id")    
     @LazyCollection(LazyCollectionOption.FALSE)
+    @Getter
     private List<Game> games = new ArrayList<>();
 
     public Tournament() {
@@ -64,21 +74,9 @@ public class Tournament {
     public Tournament(String name) {
         this.name = name;
     }
-
-    public Long getId() {
-        return id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
+        
     public void addTeam(Team team) {
         teams.add(team);
-    }
-    public List<Team> getTeams() {
-        return teams;
     }
     public boolean hasTeam(Team team) {
         return teams.contains(team);
@@ -88,9 +86,6 @@ public class Tournament {
         games.add(new Game.With().teams(team1, team2)
                                     .tournament(this)
                             .build());
-    }
-    public List<Game> getGames() {
-        return games;
     }
     public boolean hasGameWithTeams(Team team1, Team team2) {
         return games.stream()

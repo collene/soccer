@@ -10,19 +10,32 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 @Entity(name = "player")
 @Table(name = "player")
+@ToString
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
+    @ToString.Exclude
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @Getter
+    @Setter
     private Team team;
 
+    @Getter
+    @Setter
     private int number;
 
     @ManyToOne
+    @Getter
+    @Setter
     private Person person;
 
     public Player() {
@@ -33,32 +46,7 @@ public class Player {
         this.person = person;
         this.team = team;
         this.number = number;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-    public void setNumber(int number) {
-        this.number = number;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
-    public void setPerson(Person person) {
-        this.person = person;
-    }
+    }   
 
     @Override
     public boolean equals(Object o) {

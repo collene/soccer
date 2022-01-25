@@ -20,14 +20,23 @@ import javax.persistence.Table;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 @Entity(name = "team")
 @Table(name = "team")
+@ToString
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
+    @ToString.Exclude
     private Long id;
 
     @Column(unique = true)
+    @Getter
+    @Setter
     private String name;
 
     @ManyToMany
@@ -37,6 +46,7 @@ public class Team {
         joinColumns = @JoinColumn(name = "team_id"),
         inverseJoinColumns = @JoinColumn(name = "person_id")
     )
+    @Getter
     private List<Person> coaches = new ArrayList<>();
 
     @OneToMany(
@@ -45,6 +55,7 @@ public class Team {
         orphanRemoval = true
     )    
     @LazyCollection(LazyCollectionOption.FALSE)
+    @Getter
     private List<Player> players = new ArrayList<>();
 
     public Team() {
@@ -54,23 +65,9 @@ public class Team {
     public Team(String name) {
         this.name = name;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    
     public void addCoach(Person person) {
         this.coaches.add(person);
-    }
-    public List<Person> getCoaches() {
-        return coaches;
     }
     public boolean hasCoach(Person person) {
         return coaches.contains(person);
@@ -78,9 +75,6 @@ public class Team {
 
     public void addPlayer(Player player) {
         this.players.add(player);
-    }
-    public List<Player> getPlayers() {
-        return players;
     }
     public boolean hasPlayer(Player player) {
         return players.contains(player);

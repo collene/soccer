@@ -9,14 +9,23 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 @Entity(name = "person")
 @Table(name = "person")
+@ToString
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
+    @ToString.Exclude
     private Long id;
 
     @Column(unique = true)
+    @Getter
+    @Setter
     private String name;
 
     public Person() {
@@ -24,17 +33,7 @@ public class Person {
     }
     public Person(String name) {
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
+    }    
 
     @Override
     public boolean equals(Object o) {

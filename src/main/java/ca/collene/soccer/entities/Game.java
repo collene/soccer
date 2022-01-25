@@ -27,12 +27,17 @@ import ca.collene.soccer.models.Tally.TallyType;
 import ca.collene.soccer.services.GameNotScoredException;
 import ca.collene.soccer.services.InvalidScoreException;
 import ca.collene.soccer.services.TeamNotInGameException;
+import lombok.Getter;
+import lombok.ToString;
 
 @Entity(name = "game")
 @Table(name = "game")
+@ToString
 public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
+    @ToString.Exclude
     private Long id;
 
     @ManyToMany
@@ -43,9 +48,11 @@ public class Game {
     )
     @Size(max = 2)
     @LazyCollection(LazyCollectionOption.FALSE)
+    @Getter
     private List<Team> teams = new ArrayList<>();
 
     @ManyToOne
+    @Getter
     private Tournament tournament;
 
     @Size(max = 2)
@@ -56,6 +63,7 @@ public class Game {
         joinColumns = @JoinColumn(name = "game_id")
     )
     @MapKeyJoinColumn(name = "team_id")
+    @Getter
     private Map<Team, Integer> points = new HashMap<>();    
 
     public Game() {
@@ -71,16 +79,6 @@ public class Game {
         teams.add(team2);
     }
     
-    public Long getId() {
-        return id;
-    }
-
-    public Tournament getTournament() {
-        return tournament;
-    }
-    public List<Team> getTeams() {
-        return teams;
-    }
     public boolean hasTeam(Team team) {
         return teams.contains(team);
     }    

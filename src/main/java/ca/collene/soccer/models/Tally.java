@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
 public class Tally {
     private String teamName;
     private long wins = 0;
@@ -46,41 +53,6 @@ public class Tally {
         this.unscored = tallyTypes.stream().filter(t -> t == TallyType.UNSCORED).count();
     }
 
-    public String getTeamName() {
-        return teamName;
-    }    
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
-    }
-
-    public long getWins() {
-        return wins;
-    }
-    public void setWins(long wins) {
-        this.wins = wins;
-    }
-
-    public long getTies() {
-        return ties;
-    }
-    public void setTies(long ties) {
-        this.ties = ties;
-    }
-
-    public long getLosses() {
-        return losses;
-    }
-    public void setLosses(long losses) {
-        this.losses = losses;
-    }    
-
-    public long getUnscored() {
-        return unscored;
-    }
-    public void setUnscored(long unscored) {
-        this.unscored = unscored;
-    }
-
     public long getTotal() {
         return getWins() * TallyType.WIN.getTallyTotalValue()
                 + getLosses() * TallyType.LOSS.getTallyTotalValue()
@@ -106,24 +78,6 @@ public class Tally {
     @Override
     public int hashCode() {
         return Objects.hash(teamName, wins, losses, ties, unscored);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder string = new StringBuilder();
-        string.append("Name: ")
-                .append(teamName)
-                .append(", Wins: ")
-                .append(wins)
-                .append(", Ties: ")
-                .append(ties)
-                .append(", Losses: ")
-                .append(losses)
-                .append(", Unscored: ")
-                .append(unscored)
-                .append(", TOTAL: ")
-                .append(getTotal());
-        return string.toString();
     }
 
     public static class With {
