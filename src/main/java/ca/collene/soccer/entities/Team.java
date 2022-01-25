@@ -20,13 +20,20 @@ import javax.persistence.Table;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity(name = "team")
 @Table(name = "team")
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +54,7 @@ public class Team {
         inverseJoinColumns = @JoinColumn(name = "person_id")
     )
     @Getter
+    @Builder.Default
     private List<Person> coaches = new ArrayList<>();
 
     @OneToMany(
@@ -56,11 +64,8 @@ public class Team {
     )    
     @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
+    @Builder.Default
     private List<Player> players = new ArrayList<>();
-
-    public Team() {
-
-    }
 
     public Team(String name) {
         this.name = name;
@@ -115,21 +120,5 @@ public class Team {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
-    }
-
-    public static class With {
-        private String name;
-
-        public With() {
-
-        }
-        public With name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Team build() {
-            return new Team(name);
-        }
     }
 }

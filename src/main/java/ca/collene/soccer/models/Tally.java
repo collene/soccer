@@ -1,22 +1,27 @@
 package ca.collene.soccer.models;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Tally {
     private String teamName;
-    private long wins = 0;
-    private long ties = 0;
-    private long losses = 0;
-    private long unscored = 0;
+    @Builder.Default private long wins = 0;
+    @Builder.Default private long ties = 0;
+    @Builder.Default private long losses = 0;
+    @Builder.Default private long unscored = 0;
 
     public enum TallyType {        
         WIN(3),
@@ -32,18 +37,7 @@ public class Tally {
         public int getTallyTotalValue() {
             return value;
         }
-    }
-
-    public Tally() {
-
-    }
-    public Tally(String teamName, long wins, long ties, long losses, long unscored) {
-        this.teamName = teamName;
-        this.wins = wins;
-        this.ties = ties;
-        this.losses = losses;
-        this.unscored = unscored;
-    }
+    }    
 
     public Tally(String teamName, List<TallyType> tallyTypes) {
         this.teamName = teamName;
@@ -78,51 +72,5 @@ public class Tally {
     @Override
     public int hashCode() {
         return Objects.hash(teamName, wins, losses, ties, unscored);
-    }
-
-    public static class With {
-        private String teamName;
-        private long wins = 0;
-        private long ties = 0;
-        private long losses = 0;
-        private long unscored = 0;
-        private List<TallyType> tallyTypes = new ArrayList<>();
-
-        public With() {
-
-        }
-        public With teamName(String name) {
-            this.teamName = name;
-            return this;
-        }
-
-        public With wins(long wins) {
-            this.wins = wins;
-            return this;
-        }
-
-        public With ties(long ties) {
-            this.ties = ties;
-            return this;
-        }
-        public With losses(long losses) {
-            this.losses = losses;
-            return this;
-        }
-        public With unscored(long unscored) {
-            this.unscored = unscored;
-            return this;
-        }
-        public With tallyTypes(List<TallyType> tallyTypes) {
-            this.tallyTypes = tallyTypes;
-            return this;
-        }
-
-        public Tally build() {
-            if(!tallyTypes.isEmpty()) {
-                return new Tally(teamName, tallyTypes);
-            }
-            return new Tally(teamName, wins, ties, losses, unscored);
-        }
     }
 }

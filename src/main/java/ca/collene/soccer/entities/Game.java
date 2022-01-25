@@ -27,12 +27,19 @@ import ca.collene.soccer.models.Tally.TallyType;
 import ca.collene.soccer.services.GameNotScoredException;
 import ca.collene.soccer.services.InvalidScoreException;
 import ca.collene.soccer.services.TeamNotInGameException;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity(name = "game")
 @Table(name = "game")
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +56,7 @@ public class Game {
     @Size(max = 2)
     @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
+    @Builder.Default
     private List<Team> teams = new ArrayList<>();
 
     @ManyToOne
@@ -64,11 +72,9 @@ public class Game {
     )
     @MapKeyJoinColumn(name = "team_id")
     @Getter
+    @Builder.Default
     private Map<Team, Integer> points = new HashMap<>();    
-
-    public Game() {
-
-    }
+    
     public Game(Tournament tournament, List<Team> teams) {
         this.tournament = tournament;
         this.teams = teams;
@@ -142,43 +148,5 @@ public class Game {
     @Override
     public int hashCode() {
         return Objects.hash(id, tournament, teams);
-    }
-
-    public static class With {
-        private Tournament tournament;
-        private List<Team> teams = new ArrayList<>();
-
-        public With() {
-
-        }
-        public With tournament(Tournament tournament) {
-            this.tournament = tournament;
-            return this;
-        }
-        public With tournament(String tournamentName) {
-            this.tournament = new Tournament.With().name(tournamentName)
-                                    .build();
-            return this;
-        }
-        public With teams(List<Team> teams) {
-            this.teams = teams;
-            return this;
-        }
-        public With teams(Team team1, Team team2) {
-            this.teams.add(team1);
-            this.teams.add(team2);
-            return this;
-        }
-        public With teams(String team1Name, String team2Name) {
-            this.teams.add(new Team.With().name(team1Name)
-                                .build());
-            this.teams.add(new Team.With().name(team2Name)
-                                .build());
-            return this;
-        }       
-
-        public Game build() {
-            return new Game(tournament, teams);
-        }
-    }
+    }    
 }

@@ -3,8 +3,6 @@ package ca.collene.soccer.shell;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -30,11 +28,11 @@ import ca.collene.soccer.services.TeamDoesNotExistException;
 import ca.collene.soccer.services.TeamService;
 import ca.collene.soccer.services.TournamentDoesNotExistException;
 import ca.collene.soccer.services.TournamentService;
+import lombok.extern.slf4j.Slf4j;
 
 @ShellComponent
+@Slf4j
 public class Commands {
-    private Logger logger = LoggerFactory.getLogger(Commands.class);
-
     @Autowired
     private TournamentService tournamentService;
 
@@ -161,7 +159,7 @@ public class Commands {
         headers.put("total", "TOTAL");
         Tournament tournament = tournamentService.getTournament(tournamentName);
         List<Tally> tallies = tournament.getTally();
-        logger.debug("Tallies: " + tallies);
+        log.debug("Tallies: " + tallies);
         TableModel model = new BeanListTableModel<>(tallies, headers);
         TableBuilder tableBuilder = new TableBuilder(model);
         tableBuilder.addInnerBorder(BorderStyle.fancy_light);

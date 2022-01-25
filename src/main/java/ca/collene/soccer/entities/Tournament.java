@@ -1,6 +1,7 @@
 package ca.collene.soccer.entities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -17,28 +18,31 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ca.collene.soccer.models.Tally;
 import ca.collene.soccer.models.Tally.TallyType;
 import ca.collene.soccer.services.GameDoesNotExistException;
 import ca.collene.soccer.services.InvalidScoreException;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity(name = "tournament")
 @Table(name = "tournament")
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
+@Builder
 public class Tournament {
-    @Transient
-    private Logger logger = LoggerFactory.getLogger(Tournament.class);
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
@@ -58,6 +62,7 @@ public class Tournament {
     )
     @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
+    @Builder.Default
     private List<Team> teams = new ArrayList<>();
 
     @OneToMany(
@@ -66,11 +71,9 @@ public class Tournament {
     @JoinColumn(name = "tournament_id")    
     @LazyCollection(LazyCollectionOption.FALSE)
     @Getter
+    @Builder.Default
     private List<Game> games = new ArrayList<>();
 
-    public Tournament() {
-
-    }
     public Tournament(String name) {
         this.name = name;
     }
@@ -83,7 +86,7 @@ public class Tournament {
     }
 
     public void addGame(Team team1, Team team2) {
-        games.add(new Game.With().teams(team1, team2)
+        games.add(Game.builder().teams(Arrays.asList(team1, team2))
                                     .tournament(this)
                             .build());
     }
@@ -118,7 +121,7 @@ public class Tournament {
     }
 
     public List<Tally> getTally() {
-        logger.debug("Getting tally for tournament, there are " + teams.size() + " teams");
+        log.debug("Getting tally for tournament, there are " + teams.size() + " teams");
         return teams.stream()
                     .map(team -> new Tally(team.getName(), getTallyTypesForTeam(team)))
                     .sorted(Comparator.comparingLong(tally -> ((Tally) tally).getTotal()).reversed())
@@ -142,21 +145,5 @@ public class Tournament {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
-    }
-
-    public static class With {
-        private String name;
-
-        public With() {
-
-        }
-        public With name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Tournament build() {
-            return new Tournament(name);
-        }
     }
 }

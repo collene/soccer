@@ -13,7 +13,7 @@ public class PersonService {
     private PersonRepository personRepository;
 
     public Person createPerson(String name) throws NameAlreadyExistsException {
-        Person newPerson = new Person.With().name(name)
+        Person newPerson = Person.builder().name(name)
                                 .build();
         try {
             return personRepository.save(newPerson);

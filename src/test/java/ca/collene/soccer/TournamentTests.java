@@ -37,10 +37,10 @@ public class TournamentTests {
         final String team1Name = "Team One";
         final String team2Name = "Team Two";
         final String team3Name = "Team Three";
-        Tournament tournament = new Tournament.With().name(tournamentName).build();
-        Team team1 = new Team.With().name(team1Name).build();
-        Team team2 = new Team.With().name(team2Name).build();
-        Team team3 = new Team.With().name(team3Name).build();
+        Tournament tournament = Tournament.builder().name(tournamentName).build();
+        Team team1 = Team.builder().name(team1Name).build();
+        Team team2 = Team.builder().name(team2Name).build();
+        Team team3 = Team.builder().name(team3Name).build();
         tournament.addTeam(team1);
         tournament.addTeam(team2);
 
@@ -56,10 +56,10 @@ public class TournamentTests {
         final String team1Name = "Team One";
         final String team2Name = "Team Two";
         final String team3Name = "Team Three";
-        Tournament tournament = new Tournament.With().name(tournamentName).build();
-        Team team1 = new Team.With().name(team1Name).build();
-        Team team2 = new Team.With().name(team2Name).build();
-        Team team3 = new Team.With().name(team3Name).build();
+        Tournament tournament = Tournament.builder().name(tournamentName).build();
+        Team team1 = Team.builder().name(team1Name).build();
+        Team team2 = Team.builder().name(team2Name).build();
+        Team team3 = Team.builder().name(team3Name).build();
         tournament.addGame(team1, team2);
         tournament.addGame(team1, team3);        
 
@@ -79,12 +79,12 @@ public class TournamentTests {
         final String team3Name = "Team Three";
         final String team4Name = "Team Four";
         final String team5Name = "Team Five";
-        Tournament tournament = new Tournament.With().name(tournamentName).build();
-        Team team1 = new Team.With().name(team1Name).build();
-        Team team2 = new Team.With().name(team2Name).build();
-        Team team3 = new Team.With().name(team3Name).build();
-        Team team4 = new Team.With().name(team4Name).build();
-        Team team5 = new Team.With().name(team5Name).build();
+        Tournament tournament = Tournament.builder().name(tournamentName).build();
+        Team team1 = Team.builder().name(team1Name).build();
+        Team team2 = Team.builder().name(team2Name).build();
+        Team team3 = Team.builder().name(team3Name).build();
+        Team team4 = Team.builder().name(team4Name).build();
+        Team team5 = Team.builder().name(team5Name).build();
         tournament.addGame(team1, team2);
         tournament.addGame(team1, team3);      
         tournament.addGame(team1, team4);
@@ -111,12 +111,12 @@ public class TournamentTests {
         final int team3Points = 3;
         final int team4Points = 4;
         final int team5Points = 5;
-        Tournament tournament = new Tournament.With().name(tournamentName).build();
-        Team team1 = new Team.With().name(team1Name).build();
-        Team team2 = new Team.With().name(team2Name).build();
-        Team team3 = new Team.With().name(team3Name).build();
-        Team team4 = new Team.With().name(team4Name).build();
-        Team team5 = new Team.With().name(team5Name).build();
+        Tournament tournament = Tournament.builder().name(tournamentName).build();
+        Team team1 = Team.builder().name(team1Name).build();
+        Team team2 = Team.builder().name(team2Name).build();
+        Team team3 = Team.builder().name(team3Name).build();
+        Team team4 = Team.builder().name(team4Name).build();
+        Team team5 = Team.builder().name(team5Name).build();
         tournament.addGame(team1, team2);
         tournament.addGame(team1, team3);      
         tournament.addGame(team1, team4);
@@ -153,12 +153,12 @@ public class TournamentTests {
         final int team3Points = 3;
         final int team4Points = 4;
         final int team5Points = 5;
-        Tournament tournament = new Tournament.With().name(tournamentName).build();        
-        Team team1 = new Team.With().name(team1Name).build();
-        Team team2 = new Team.With().name(team2Name).build();
-        Team team3 = new Team.With().name(team3Name).build();
-        Team team4 = new Team.With().name(team4Name).build();
-        Team team5 = new Team.With().name(team5Name).build();
+        Tournament tournament = Tournament.builder().name(tournamentName).build();        
+        Team team1 = Team.builder().name(team1Name).build();
+        Team team2 = Team.builder().name(team2Name).build();
+        Team team3 = Team.builder().name(team3Name).build();
+        Team team4 = Team.builder().name(team4Name).build();
+        Team team5 = Team.builder().name(team5Name).build();
         tournament.addTeam(team1);
         tournament.addTeam(team2);
         tournament.addTeam(team3);
@@ -195,34 +195,34 @@ public class TournamentTests {
             logger.debug(tally.toString());
         }
 
-        assertThat(team1Tally, is(equalTo(new Tally.With()
+        assertThat(team1Tally, is(equalTo(Tally.builder()
                                         .teamName(team1Name)
                                         .losses(3l)                                        
                                     .build())));
         assertThat(team1Tally.getTotal(), is(equalTo(3l)));
 
-        assertThat(team2Tally, is(equalTo(new Tally.With()
+        assertThat(team2Tally, is(equalTo(Tally.builder()
                                         .teamName(team2Name)
                                         .wins(1l)
                                         .losses(2l)
                                     .build())));
         assertThat(team2Tally.getTotal(), is(equalTo(5l)));
 
-        assertThat(team3Tally, is(equalTo(new Tally.With()
+        assertThat(team3Tally, is(equalTo(Tally.builder()
                                         .teamName(team3Name)
                                         .wins(2l)
                                         .losses(2l)
                                     .build())));
         assertThat(team3Tally.getTotal(), is(equalTo(8l)));
 
-        assertThat(team4Tally, is(equalTo(new Tally.With()
+        assertThat(team4Tally, is(equalTo(Tally.builder()
                                         .teamName(team4Name)
                                         .wins(3l)
                                         .unscored(1l)                                        
                                     .build())));
         assertThat(team4Tally.getTotal(), is(equalTo(9l)));
 
-        assertThat(team5Tally, is(equalTo(new Tally.With()
+        assertThat(team5Tally, is(equalTo(Tally.builder()
                                         .teamName(team5Name)
                                         .wins(1l)
                                         .unscored(1l)

@@ -283,14 +283,14 @@ public class TeamServiceTests {
 
         Team team = teamService.getTeam(teamName);
         assertThat(team.getPlayers(), hasSize(2));
-        assertThat(new Player.With().person(person1Name)
+        assertThat(Player.builder().person(Person.builder().name(person1Name).build())
                                     .number(player1Number)
-                                    .team(teamName)
+                                    .team(Team.builder().name(teamName).build())
                                 .build(),
                     is(in(team.getPlayers())));
-        assertThat(new Player.With().person(person2Name)
+        assertThat(Player.builder().person(Person.builder().name(person2Name).build())
                                     .number(player2Number)
-                                    .team(teamName)
+                                    .team(Team.builder().name(teamName).build())
                                 .build(),
                     is(in(team.getPlayers())));        
     }
@@ -312,22 +312,22 @@ public class TeamServiceTests {
 
         Team team1 = teamService.getTeam(team1Name);
         assertThat(team1.getPlayers(), hasSize(2));
-        assertThat(new Player.With().person(person1Name)
+        assertThat(Player.builder().person(Person.builder().name(person1Name).build())
                                     .number(player1Number)
-                                    .team(team1Name)
+                                    .team(Team.builder().name(team1Name).build())
                                 .build(),
                     is(in(team1.getPlayers())));
-        assertThat(new Player.With().person(person2Name)
+        assertThat(Player.builder().person(Person.builder().name(person2Name).build())
                                     .number(player2Number)
-                                    .team(team1Name)
+                                    .team(Team.builder().name(team1Name).build())
                                 .build(),
                     is(in(team1.getPlayers())));
 
         Team team2 = teamService.getTeam(team2Name);
         assertThat(team2.getPlayers(), hasSize(1));
-        assertThat(new Player.With().person(person3Name)
+        assertThat(Player.builder().person(Person.builder().name(person3Name).build())
                                     .number(player3Number)
-                                    .team(team2Name)
+                                    .team(Team.builder().name(team2Name).build())
                                 .build(),
                     is(in(team2.getPlayers())));
     }
@@ -346,9 +346,9 @@ public class TeamServiceTests {
         });
         Team team = teamService.getTeam(teamName);
         assertThat(team.getPlayers(), hasSize(1));   
-        assertThat(new Player.With().person(personName)
+        assertThat(Player.builder().person(Person.builder().name(personName).build())
                                     .number(playerNumber1)
-                                    .team(teamName)
+                                    .team(Team.builder().name(teamName).build())
                                 .build(),
                     is(in(team.getPlayers())));
     }
@@ -366,9 +366,9 @@ public class TeamServiceTests {
         });
         Team team = teamService.getTeam(teamName);
         assertThat(team.getPlayers(), hasSize(1));   
-        assertThat(new Player.With().person(personName)
+        assertThat(Player.builder().person(Person.builder().name(personName).build())
                                     .number(playerNumber)
-                                    .team(teamName)
+                                    .team(Team.builder().name(teamName).build())
                                 .build(),
                     is(in(team.getPlayers())));
     }

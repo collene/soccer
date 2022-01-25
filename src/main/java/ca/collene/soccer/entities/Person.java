@@ -9,13 +9,20 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity(name = "person")
 @Table(name = "person")
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,9 +35,6 @@ public class Person {
     @Setter
     private String name;
 
-    public Person() {
-
-    }
     public Person(String name) {
         this.name = name;
     }    
@@ -52,21 +56,5 @@ public class Person {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
-    }
-
-    public static class With {
-        private String name;
-
-        public With() {
-
-        }
-        public With name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Person build() {
-            return new Person(name);
-        }
     }
 }

@@ -10,13 +10,20 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity(name = "player")
 @Table(name = "player")
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +44,6 @@ public class Player {
     @Getter
     @Setter
     private Person person;
-
-    public Player() {
-
-    }
 
     public Player(Person person, Team team, int number) {
         this.person = person;
@@ -65,45 +68,5 @@ public class Player {
     @Override
     public int hashCode() {
         return Objects.hash(id, person, team);
-    }
-
-    public static class With {
-        private Person person;
-        private Team team;
-        private int number;
-
-        public With() {
-
-        }
-        public With person(Person person) {
-            this.person = person;
-            return this;
-        }
-
-        public With person(String personName) {
-            this.person = new Person.With().name(personName)
-                            .build();
-            return this;
-        }
-
-        public With team(Team team) {
-            this.team = team;
-            return this;
-        }
-
-        public With team(String teamName) {
-            this.team = new Team.With().name(teamName)
-                            .build();
-            return this;
-        }
-
-        public With number(int number) {
-            this.number = number;
-            return this;
-        }
-
-        public Player build() {
-            return new Player(person, team, number);
-        }
     }
 }
