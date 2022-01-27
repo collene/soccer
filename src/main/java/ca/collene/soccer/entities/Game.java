@@ -15,7 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -30,6 +29,7 @@ import ca.collene.soccer.services.TeamNotInGameException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -44,7 +44,7 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
-    @ToString.Exclude
+    @ToString.Exclude    
     private Long id;
 
     @ManyToMany
@@ -59,10 +59,6 @@ public class Game {
     @Builder.Default
     private List<Team> teams = new ArrayList<>();
 
-    @ManyToOne
-    @Getter
-    private Tournament tournament;
-
     @Size(max = 2)
     @ElementCollection
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -73,14 +69,13 @@ public class Game {
     @MapKeyJoinColumn(name = "team_id")
     @Getter
     @Builder.Default
+    @EqualsAndHashCode.Exclude
     private Map<Team, Integer> points = new HashMap<>();    
     
-    public Game(Tournament tournament, List<Team> teams) {
-        this.tournament = tournament;
+    public Game(List<Team> teams) {        
         this.teams = teams;
     }
-    public Game(Tournament tournament, Team team1, Team team2) {
-        this.tournament = tournament;
+    public Game(Team team1, Team team2) {        
         teams.add(team1);
         teams.add(team2);
     }
@@ -129,7 +124,7 @@ public class Game {
         } catch (TeamNotInGameException | GameNotScoredException e) {
             return TallyType.UNSCORED;
         }        
-    }
+    } 
 
     @Override
     public boolean equals(Object o) {
@@ -139,14 +134,15 @@ public class Game {
             return false;
         }
         Game other = (Game) o;
-        if(this.id == null || other.id == null) {
-            return Objects.equals(this.tournament, other.tournament) && this.teams.containsAll(other.teams);
+        if(this.id == null || other.id == null) {            
+            return Objects.equals(this.teams, other.teams)
+                && Objects.equals(this.points, other.points);       
         }
         return this.id == other.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, teams);
+        return Objects.hash(id, teams, points);
     }    
 }

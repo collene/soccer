@@ -106,7 +106,7 @@ public class InterfaceTests {
         executeCommandInShell(addTeamCommand);
         Object addTeamAgain = executeCommandInShell(addTeamCommand);
         assertThat(addTeamAgain, is("Team with name '" + teamName +"' is already in tournament '" + tournamentName + "'"));
-    }
+    }   
 
     @Test
     public void create_person_command_works() {

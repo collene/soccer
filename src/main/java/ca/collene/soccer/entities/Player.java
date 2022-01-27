@@ -20,7 +20,6 @@ import lombok.ToString;
 
 @Entity(name = "player")
 @Table(name = "player")
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -28,12 +27,12 @@ public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
-    @ToString.Exclude
+    @ToString.Exclude    
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Getter
-    @Setter
+    @Setter    
     private Team team;
 
     @Getter
@@ -60,13 +59,30 @@ public class Player {
         }
         Player other = (Player) o;
         if(this.id == null || other.id == null) {
-            return Objects.equals(this.person, other.person) && Objects.equals(this.team, other.team) && this.number == other.number;
+            return Objects.equals(this.person, other.person) 
+                    && Objects.equals(this.team, other.team) 
+                    && this.number == other.number;
         }
         return this.id == other.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, person, team);
+        return Objects.hash(id, person, team, number);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder();
+        string.append("Player(")
+                .append("person=")
+                .append(person.toString())
+                .append(", team=")
+                .append(team.getName())
+                .append(", number=")
+                .append(number)
+                .append(")");
+        return string.toString();
+    }
+
 }

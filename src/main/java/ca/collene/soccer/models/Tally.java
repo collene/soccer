@@ -1,10 +1,10 @@
 package ca.collene.soccer.models;
 
 import java.util.List;
-import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +16,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class Tally {
     private String teamName;
     @Builder.Default private long wins = 0;
@@ -52,25 +53,5 @@ public class Tally {
                 + getLosses() * TallyType.LOSS.getTallyTotalValue()
                 + getTies() * TallyType.TIE.getTallyTotalValue()
                 + getUnscored() * TallyType.UNSCORED.getTallyTotalValue();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        } else if(!(o instanceof Tally)) {
-            return false;
-        }
-        Tally other = (Tally) o;
-        return Objects.equals(this.teamName, other.teamName) 
-            && this.wins == other.wins
-            && this.losses == other.losses
-            && this.ties == other.ties
-            && this.unscored == other.unscored;        
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(teamName, wins, losses, ties, unscored);
     }
 }

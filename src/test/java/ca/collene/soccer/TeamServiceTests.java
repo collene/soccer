@@ -7,6 +7,10 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.collection.IsIn.in;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +47,18 @@ public class TeamServiceTests {
 
     @Autowired
     private TeamRepository teamRepository;
+
+    @Test
+    public void team_equals_works() throws Exception {
+        final String teamName = "Team Name";
+        Team team1 = teamService.getOrCreateTeam(teamName);
+        Team team2 = Team.builder().name(teamName).build();
+        Team team3 = Team.builder().name(teamName).build();                
+        assertThat(team2, is(equalTo(team3)));
+        assertThat(team1, is(equalTo(team2)));        
+        List<Team> teams = Arrays.asList(team1);
+        assertTrue(teams.contains(team2));
+    }
 
     @Test
     public void create_team_works() throws Exception {

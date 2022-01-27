@@ -27,7 +27,7 @@ public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
-    @ToString.Exclude
+    @ToString.Exclude    
     private Long id;
 
     @Column(unique = true)

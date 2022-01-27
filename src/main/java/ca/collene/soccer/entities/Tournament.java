@@ -24,8 +24,10 @@ import org.hibernate.annotations.LazyCollectionOption;
 
 import ca.collene.soccer.models.Tally;
 import ca.collene.soccer.models.Tally.TallyType;
+import ca.collene.soccer.services.GameAlreadyInTournamentException;
 import ca.collene.soccer.services.GameDoesNotExistException;
 import ca.collene.soccer.services.InvalidScoreException;
+import ca.collene.soccer.services.TeamAlreadyInTournamentException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +48,7 @@ public class Tournament {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
-    @ToString.Exclude 
+    @ToString.Exclude     
     private Long id;
 
     @Column(unique = true)
@@ -78,17 +80,25 @@ public class Tournament {
         this.name = name;
     }
         
-    public void addTeam(Team team) {
+    public void addTeam(Team team) throws TeamAlreadyInTournamentException {
+        if(hasTeam(team)) {
+            throw new TeamAlreadyInTournamentException("The team " + team.getName() + " is already in tournament " + name);
+        }
         teams.add(team);
     }
     public boolean hasTeam(Team team) {
-        return teams.contains(team);
+        log.debug("Checking if team " + team + " is in " + teams + ": " + teams.contains(team));
+        return teams.stream()
+                        .filter(t -> t.equals(team))
+                        .count() > 0;    
     }
 
-    public void addGame(Team team1, Team team2) {
+    public void addGame(Team team1, Team team2) throws GameAlreadyInTournamentException {
+        if(hasGameWithTeams(team1, team2)) {
+            throw new GameAlreadyInTournamentException("This game already exists in this tournament");
+        }
         games.add(Game.builder().teams(Arrays.asList(team1, team2))
-                                    .tournament(this)
-                            .build());
+                        .build());
     }
     public boolean hasGameWithTeams(Team team1, Team team2) {
         return games.stream()
@@ -144,6 +154,6 @@ public class Tournament {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, name, teams, games);
     }
 }

@@ -45,10 +45,13 @@ public class TournamentService {
         tournamentRepository.save(tournament);
     }
     private Team ensureTeamInTournament(String teamName, Tournament tournament) {
-        Team team = teamService.getOrCreateTeam(teamName);
-        if(!tournament.hasTeam(team)) {
+        Team team = teamService.getOrCreateTeam(teamName);        
+        try {
             tournament.addTeam(team);
-        }        
+        } catch(TeamAlreadyInTournamentException e) {
+            // ignore this error, as it's the state we want
+        }
+        
         return team;
     }
 

@@ -32,7 +32,7 @@ public class TournamentTests {
 
     // has team works
     @Test
-    public void has_team_works() {
+    public void has_team_works() throws Exception {
         final String tournamentName = "Tournament";
         final String team1Name = "Team One";
         final String team2Name = "Team Two";
@@ -51,7 +51,7 @@ public class TournamentTests {
 
     // has game with teams works
     @Test
-    public void has_game_with_teams_works() {
+    public void has_game_with_teams_works() throws Exception {
         final String tournamentName = "Tournament";
         final String team1Name = "Team One";
         final String team2Name = "Team Two";
@@ -72,7 +72,7 @@ public class TournamentTests {
 
     // get team games works
     @Test
-    public void get_games_for_team_works() {
+    public void get_games_for_team_works() throws Exception {
         final String tournamentName = "Tournament";
         final String team1Name = "Team One";
         final String team2Name = "Team Two";
