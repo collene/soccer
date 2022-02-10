@@ -31,7 +31,7 @@ public class Tally {
         UNSCORED(0);
 
         private final int value;
-        private TallyType(int value) {
+        TallyType(int value) {
             this.value = value;
         }
 

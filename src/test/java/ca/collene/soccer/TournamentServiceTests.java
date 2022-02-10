@@ -52,28 +52,24 @@ public class TournamentServiceTests {
     @Test
     public void create_tournament_works() throws Exception {
         final String testTournamentName = "Test tournament";
-        assertThat(tournamentRepository.count(), is(equalTo(0l)));        
-        assertThrows(TournamentDoesNotExistException.class, () -> {
-            tournamentService.getTournament(testTournamentName);
-        });
+        assertThat(tournamentRepository.count(), is(equalTo(0L)));
+        assertThrows(TournamentDoesNotExistException.class, () -> tournamentService.getTournament(testTournamentName));
         Tournament newTournament = tournamentService.createTournament(testTournamentName);
         assertThat(tournamentService.getTournament(testTournamentName), is(equalTo(newTournament)));
-        assertThat(tournamentRepository.count(), is(equalTo(1l)));
+        assertThat(tournamentRepository.count(), is(equalTo(1L)));
     }
 
     @Test
     public void create_tournament_with_duplicate_name_fails() throws Exception {
         final String sameTournamentName = "Test tournament";
         tournamentService.createTournament(sameTournamentName);        
-        assertThat(tournamentRepository.count(), is(equalTo(1l)));
+        assertThat(tournamentRepository.count(), is(equalTo(1L)));
 
         // make sure the exception is thrown
-        assertThrows(NameAlreadyExistsException.class, () -> {
-            tournamentService.createTournament(sameTournamentName);
-        });
+        assertThrows(NameAlreadyExistsException.class, () -> tournamentService.createTournament(sameTournamentName));
 
         // make sure that a second tournament hasn't been added after the exception was thrown
-        assertThat(tournamentRepository.count(), is(equalTo(1l)));
+        assertThat(tournamentRepository.count(), is(equalTo(1L)));
     }
 
     @Test
@@ -86,9 +82,7 @@ public class TournamentServiceTests {
     @Test
     public void get_tournament_by_name_that_does_not_exist_fails() {
         final String tournamentName = "Tournament that does not exist";
-        assertThrows(TournamentDoesNotExistException.class, () -> {
-            tournamentService.getTournament(tournamentName);
-        });
+        assertThrows(TournamentDoesNotExistException.class, () -> tournamentService.getTournament(tournamentName));
     }
     
     // adding team that exists, is not in tournament yet
@@ -140,9 +134,7 @@ public class TournamentServiceTests {
         // make sure that the team is already in the tournament        
         assertThat(team, is(in(tournament.getTeams())));
 
-        assertThrows(TeamAlreadyInTournamentException.class, () -> {
-            tournamentService.addTeamToTournament(teamName, tournament);
-        });
+        assertThrows(TeamAlreadyInTournamentException.class, () -> tournamentService.addTeamToTournament(teamName, tournament));
     }
     
     // adding team that does not exist creates the team and adds them to the tournament
@@ -152,9 +144,7 @@ public class TournamentServiceTests {
         final String teamName = "Team";
         Tournament tournament = tournamentService.createTournament(tournamentName);
         // make sure that the team doesn't exist
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            teamService.getTeam(teamName);
-        });
+        assertThrows(TeamDoesNotExistException.class, () -> teamService.getTeam(teamName));
 
         tournamentService.addTeamToTournament(teamName, tournament);
 
@@ -216,12 +206,8 @@ public class TournamentServiceTests {
         assertThat(tournament.getTeams(), hasSize(0));
         assertThat(tournament.getGames(), hasSize(0));
         // make sure that the teams don't exist
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            teamService.getTeam(team1Name);
-        });
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            teamService.getTeam(team2Name);
-        });
+        assertThrows(TeamDoesNotExistException.class, () -> teamService.getTeam(team1Name));
+        assertThrows(TeamDoesNotExistException.class, () -> teamService.getTeam(team2Name));
 
         tournamentService.addGameToTournament(team1Name, team2Name, tournament);
         assertThat(tournament.getTeams(), hasSize(2));
@@ -239,9 +225,7 @@ public class TournamentServiceTests {
         final String team2Name = "Team Two";
         Tournament tournament = tournamentService.createTournament(tournamentName);
         tournamentService.addGameToTournament(team1Name, team2Name, tournament);
-        assertThrows(GameAlreadyInTournamentException.class, () -> {
-            tournamentService.addGameToTournament(team1Name, team2Name, tournament);
-        });
+        assertThrows(GameAlreadyInTournamentException.class, () -> tournamentService.addGameToTournament(team1Name, team2Name, tournament));
         assertThat(tournament.getGames(), hasSize(1));
     }
 
@@ -253,9 +237,7 @@ public class TournamentServiceTests {
         final String team2Name = "Team Two";
         Tournament tournament = tournamentService.createTournament(tournamentName);
         tournamentService.addGameToTournament(team1Name, team2Name, tournament);
-        assertThrows(GameAlreadyInTournamentException.class, () -> {
-            tournamentService.addGameToTournament(team2Name, team1Name, tournament);
-        });
+        assertThrows(GameAlreadyInTournamentException.class, () -> tournamentService.addGameToTournament(team2Name, team1Name, tournament));
         assertThat(tournament.getGames(), hasSize(1));
     }
     
@@ -265,9 +247,7 @@ public class TournamentServiceTests {
         final String tournamentName = "Tournament";
         final String teamName = "One and Only Team";
         Tournament tournament = tournamentService.createTournament(tournamentName);
-        assertThrows(InvalidGameException.class, () -> {
-            tournamentService.addGameToTournament(teamName, teamName, tournament);
-        });
+        assertThrows(InvalidGameException.class, () -> tournamentService.addGameToTournament(teamName, teamName, tournament));
         assertThat(tournament.getGames(), is(empty()));
     }
 
@@ -383,9 +363,7 @@ public class TournamentServiceTests {
         tournamentService.addTeamToTournament(team3Name, tournament);
         tournamentService.addGameToTournament(team1Name, team2Name, tournament);
         
-        assertThrows(GameDoesNotExistException.class, () -> {
-            tournamentService.scoreGameInTournament(team1Name, team1Points, team3Name, team2Points, tournament);            
-        });
+        assertThrows(GameDoesNotExistException.class, () -> tournamentService.scoreGameInTournament(team1Name, team1Points, team3Name, team2Points, tournament));
         Game game = tournament.getGames().get(0);
         assertFalse(game.hasScore());
     }
@@ -410,9 +388,7 @@ public class TournamentServiceTests {
         Game game = tournament.getGames().get(0);
         Team team3 = teamService.getTeam(team3Name);
         
-        assertThrows(TeamNotInGameException.class, () -> {
-            game.getPointsForTeam(team3);
-        });        
+        assertThrows(TeamNotInGameException.class, () -> game.getPointsForTeam(team3));
     }
 
     // adding negative points fails
@@ -430,9 +406,7 @@ public class TournamentServiceTests {
         assertThat(tournament.getGames(), hasSize(1));
         assertFalse(tournament.getGames().get(0).hasScore());
 
-        assertThrows(InvalidScoreException.class, () -> {
-            tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
-        });
+        assertThrows(InvalidScoreException.class, () -> tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament));
 
         assertFalse(tournament.getGames().get(0).hasScore());
     }
@@ -476,9 +450,7 @@ public class TournamentServiceTests {
         assertThat(tournament.getTeams(), is(empty()));
         assertThat(tournament.getGames(), hasSize(0));
 
-        assertThrows(GameDoesNotExistException.class, () -> {
-            tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
-        });
+        assertThrows(GameDoesNotExistException.class, () -> tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament));
 
         assertThat(tournament.getTeams(), is(empty()));
     }
@@ -498,13 +470,9 @@ public class TournamentServiceTests {
         assertThat(tournament.getTeams(), is(empty()));
         assertThat(tournament.getGames(), hasSize(0));
 
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament);
-        });
+        assertThrows(TeamDoesNotExistException.class, () -> tournamentService.scoreGameInTournament(team1Name, team1Points, team2Name, team2Points, tournament));
 
         assertThat(tournament.getTeams(), is(empty()));
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            teamService.getTeam(team1Name);
-        });
+        assertThrows(TeamDoesNotExistException.class, () -> teamService.getTeam(team1Name));
     }
 }

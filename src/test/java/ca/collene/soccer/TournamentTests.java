@@ -11,9 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.shell.jline.InteractiveShellApplicationRunner;
 import org.springframework.shell.jline.ScriptShellApplicationRunner;
@@ -27,8 +26,8 @@ import ca.collene.soccer.models.Tally.TallyType;
     InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
     ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false"
 })
+@Slf4j
 public class TournamentTests {
-    private Logger logger = LoggerFactory.getLogger(Tournament.class);
 
     // has team works
     @Test
@@ -192,41 +191,41 @@ public class TournamentTests {
         Tally team5Tally = tallies.get(4);
 
         for(Tally tally: tallies) {
-            logger.debug(tally.toString());
+            log.debug(tally.toString());
         }
 
         assertThat(team1Tally, is(equalTo(Tally.builder()
                                         .teamName(team1Name)
-                                        .losses(3l)                                        
+                                        .losses(3L)
                                     .build())));
-        assertThat(team1Tally.getTotal(), is(equalTo(3l)));
+        assertThat(team1Tally.getTotal(), is(equalTo(3L)));
 
         assertThat(team2Tally, is(equalTo(Tally.builder()
                                         .teamName(team2Name)
-                                        .wins(1l)
-                                        .losses(2l)
+                                        .wins(1L)
+                                        .losses(2L)
                                     .build())));
-        assertThat(team2Tally.getTotal(), is(equalTo(5l)));
+        assertThat(team2Tally.getTotal(), is(equalTo(5L)));
 
         assertThat(team3Tally, is(equalTo(Tally.builder()
                                         .teamName(team3Name)
-                                        .wins(2l)
-                                        .losses(2l)
+                                        .wins(2L)
+                                        .losses(2L)
                                     .build())));
-        assertThat(team3Tally.getTotal(), is(equalTo(8l)));
+        assertThat(team3Tally.getTotal(), is(equalTo(8L)));
 
         assertThat(team4Tally, is(equalTo(Tally.builder()
                                         .teamName(team4Name)
-                                        .wins(3l)
-                                        .unscored(1l)                                        
+                                        .wins(3L)
+                                        .unscored(1L)
                                     .build())));
-        assertThat(team4Tally.getTotal(), is(equalTo(9l)));
+        assertThat(team4Tally.getTotal(), is(equalTo(9L)));
 
         assertThat(team5Tally, is(equalTo(Tally.builder()
                                         .teamName(team5Name)
-                                        .wins(1l)
-                                        .unscored(1l)
+                                        .wins(1L)
+                                        .unscored(1L)
                                     .build())));
-        assertThat(team5Tally.getTotal(), is(equalTo(3l)));
+        assertThat(team5Tally.getTotal(), is(equalTo(3L)));
     }
 }

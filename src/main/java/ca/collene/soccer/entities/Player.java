@@ -63,7 +63,7 @@ public class Player {
                     && Objects.equals(this.team, other.team) 
                     && this.number == other.number;
         }
-        return this.id == other.id;
+        return this.id.equals(other.id);
     }
 
     @Override
@@ -73,16 +73,14 @@ public class Player {
 
     @Override
     public String toString() {
-        StringBuilder string = new StringBuilder();
-        string.append("Player(")
-                .append("person=")
-                .append(person.toString())
-                .append(", team=")
-                .append(team.getName())
-                .append(", number=")
-                .append(number)
-                .append(")");
-        return string.toString();
+        return "Player(" +
+                "person=" +
+                person.toString() +
+                ", team=" +
+                team.getName() +
+                ", number=" +
+                number +
+                ")";
     }
 
 }

@@ -7,5 +7,5 @@ import ca.collene.soccer.entities.Tournament;
 
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
-    public Tournament findByName(String name);
+    Tournament findByName(String name);
 }

@@ -7,5 +7,5 @@ import ca.collene.soccer.entities.Person;
 
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
-    public Person findByName(String name);
+    Person findByName(String name);
 }

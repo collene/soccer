@@ -9,7 +9,6 @@ import static org.hamcrest.collection.IsIn.in;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -49,42 +48,38 @@ public class TeamServiceTests {
     private TeamRepository teamRepository;
 
     @Test
-    public void team_equals_works() throws Exception {
+    public void team_equals_works() {
         final String teamName = "Team Name";
         Team team1 = teamService.getOrCreateTeam(teamName);
         Team team2 = Team.builder().name(teamName).build();
         Team team3 = Team.builder().name(teamName).build();                
         assertThat(team2, is(equalTo(team3)));
         assertThat(team1, is(equalTo(team2)));        
-        List<Team> teams = Arrays.asList(team1);
+        List<Team> teams = List.of(team1);
         assertTrue(teams.contains(team2));
     }
 
     @Test
     public void create_team_works() throws Exception {
         final String testTeamName = "Test team";
-        assertThat(teamRepository.count(), is(equalTo(0l)));        
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            teamService.getTeam(testTeamName);
-        });
+        assertThat(teamRepository.count(), is(equalTo(0L)));
+        assertThrows(TeamDoesNotExistException.class, () -> teamService.getTeam(testTeamName));
         Team newTeam = teamService.createTeam(testTeamName);
         assertThat(teamService.getTeam(testTeamName), is(equalTo(newTeam)));
-        assertThat(teamRepository.count(), is(equalTo(1l)));
+        assertThat(teamRepository.count(), is(equalTo(1L)));
     }
 
     @Test
     public void create_team_with_duplicate_name_fails() throws Exception {
         final String sameTeamName = "Test team";
         teamService.createTeam(sameTeamName);        
-        assertThat(teamRepository.count(), is(equalTo(1l)));
+        assertThat(teamRepository.count(), is(equalTo(1L)));
 
         // make sure the exception is thrown
-        assertThrows(NameAlreadyExistsException.class, () -> {
-            teamService.createTeam(sameTeamName);
-        });
+        assertThrows(NameAlreadyExistsException.class, () -> teamService.createTeam(sameTeamName));
 
         // make sure that a second team hasn't been added after the exception was thrown
-        assertThat(teamRepository.count(), is(equalTo(1l)));
+        assertThat(teamRepository.count(), is(equalTo(1L)));
     }
 
     @Test
@@ -97,9 +92,7 @@ public class TeamServiceTests {
     @Test
     public void get_team_by_name_that_does_not_exist_fails() {
         final String testTeamName = "Team that does not exist";
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            teamService.getTeam(testTeamName);
-        });
+        assertThrows(TeamDoesNotExistException.class, () -> teamService.getTeam(testTeamName));
     }
 
     // adding a coach who exists to a team that exists
@@ -127,9 +120,7 @@ public class TeamServiceTests {
         Person coach = personService.createPerson(coachName);
 
         // make sure that the team doesn't exist        
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            teamService.getTeam(teamName);
-        });
+        assertThrows(TeamDoesNotExistException.class, () -> teamService.getTeam(teamName));
         
         teamService.addCoachToTeam(coachName, teamName);
         Team team = teamService.getTeam(teamName);
@@ -141,16 +132,14 @@ public class TeamServiceTests {
     public void add_coach_who_does_not_exist_to_a_team_that_does_creates_person_and_adds_coach() throws Exception {
         final String teamName = "Test team";
         final String coachName = "Coach Smith";
-        Team team = teamService.createTeam(teamName);
+        teamService.createTeam(teamName);
 
         // make sure that the person doesn't exist
-        assertThrows(PersonDoesNotExistException.class, () -> {
-            personService.getPerson(coachName);
-        });
+        assertThrows(PersonDoesNotExistException.class, () -> personService.getPerson(coachName));
 
         teamService.addCoachToTeam(coachName, teamName);
         Person coach = personService.getPerson(coachName);
-        team = teamService.getTeam(teamName);
+        Team team = teamService.getTeam(teamName);
         assertThat(coach, is(in(team.getCoaches())));
     }
 
@@ -161,13 +150,9 @@ public class TeamServiceTests {
         final String coachName = "Coach Smith";
 
         // make sure that the person doesn't exist
-        assertThrows(PersonDoesNotExistException.class, () -> {
-            personService.getPerson(coachName);
-        });
+        assertThrows(PersonDoesNotExistException.class, () -> personService.getPerson(coachName));
         // make sure that the team doesn't exist
-        assertThrows(TeamDoesNotExistException.class, () -> {
-            teamService.getTeam(teamName);
-        });
+        assertThrows(TeamDoesNotExistException.class, () -> teamService.getTeam(teamName));
 
         teamService.addCoachToTeam(coachName, teamName);
         Person coach = personService.getPerson(coachName);
@@ -181,9 +166,7 @@ public class TeamServiceTests {
         final String coachName = "Coach Smith";
 
         teamService.addCoachToTeam(coachName, teamName);
-        assertThrows(CoachAlreadyOnTeamException.class, () -> {
-            teamService.addCoachToTeam(coachName, teamName);
-        });
+        assertThrows(CoachAlreadyOnTeamException.class, () -> teamService.addCoachToTeam(coachName, teamName));
         Person coach = personService.getPerson(coachName);
         Team team = teamService.getTeam(teamName);
         assertThat(coach, is(in(team.getCoaches())));
@@ -230,7 +213,7 @@ public class TeamServiceTests {
         Team newTeam = teamService.createTeam(teamName);
         
         Team queriedTeam = teamService.getOrCreateTeam(teamName);
-        assertThat(teamRepository.count(), is(equalTo(1l)));
+        assertThat(teamRepository.count(), is(equalTo(1L)));
         assertThat(queriedTeam, is(equalTo(newTeam)));
     }
 
@@ -238,9 +221,9 @@ public class TeamServiceTests {
     public void get_or_create_team_that_does_not_exist_creates_team() throws Exception {
         final String teamName = "Team";
         
-        assertThat(teamRepository.count(), is(equalTo(0l)));
+        assertThat(teamRepository.count(), is(equalTo(0L)));
         Team newTeam = teamService.createTeam(teamName);
-        assertThat(teamRepository.count(), is(equalTo(1l)));
+        assertThat(teamRepository.count(), is(equalTo(1L)));
         assertThat(teamService.getTeam(teamName), is(equalTo(newTeam)));
     }  
 
@@ -249,13 +232,13 @@ public class TeamServiceTests {
         final String teamName = "Team";
         final String personName = "Jane Doe";
         final int playerNumber = 10;
-        Team team = teamService.createTeam(teamName);
+        teamService.createTeam(teamName);
         Person person = personService.createPerson(personName);
 
         teamService.addPlayerToTeam(personName, teamName, playerNumber);
 
         // need to load team again from the service
-        team = teamService.getTeam(teamName);
+        Team team = teamService.getTeam(teamName);
         assertThat(team.getPlayers(), hasSize(1));        
         Player player = team.getPlayers().get(0);
         assertThat(player.getPerson(), is(equalTo(person)));
@@ -270,9 +253,7 @@ public class TeamServiceTests {
         final int playerNumber = 10;
 
         // make sure that the person doesn't exist
-        assertThrows(PersonDoesNotExistException.class, () -> {
-            personService.getPerson(personName);
-        });        
+        assertThrows(PersonDoesNotExistException.class, () -> personService.getPerson(personName));
 
         teamService.addPlayerToTeam(personName, teamName, playerNumber);
 
@@ -292,7 +273,7 @@ public class TeamServiceTests {
         final int player1Number = 10;
         final int player2Number = 20;
 
-        assertThat(teamRepository.count(), is(equalTo(0l)));
+        assertThat(teamRepository.count(), is(equalTo(0L)));
 
         teamService.addPlayerToTeam(person1Name, teamName, player1Number);
         teamService.addPlayerToTeam(person2Name, teamName, player2Number);
@@ -357,9 +338,7 @@ public class TeamServiceTests {
         final int playerNumber2 = 20;
 
         teamService.addPlayerToTeam(personName, teamName, playerNumber1);
-        assertThrows(PlayerAlreadyOnTeamException.class, () -> {
-            teamService.addPlayerToTeam(personName, teamName, playerNumber2);
-        });
+        assertThrows(PlayerAlreadyOnTeamException.class, () -> teamService.addPlayerToTeam(personName, teamName, playerNumber2));
         Team team = teamService.getTeam(teamName);
         assertThat(team.getPlayers(), hasSize(1));   
         assertThat(Player.builder().person(Person.builder().name(personName).build())
@@ -377,9 +356,7 @@ public class TeamServiceTests {
         final int playerNumber = 10;        
 
         teamService.addPlayerToTeam(personName, teamName, playerNumber);
-        assertThrows(PlayerAlreadyOnTeamException.class, () -> {
-            teamService.addPlayerToTeam(personName, teamName, playerNumber);
-        });
+        assertThrows(PlayerAlreadyOnTeamException.class, () -> teamService.addPlayerToTeam(personName, teamName, playerNumber));
         Team team = teamService.getTeam(teamName);
         assertThat(team.getPlayers(), hasSize(1));   
         assertThat(Player.builder().person(Person.builder().name(personName).build())
@@ -398,9 +375,7 @@ public class TeamServiceTests {
         final int playerNumber = 10;
 
         teamService.addPlayerToTeam(person1Name, teamName, playerNumber);
-        assertThrows(NumberAlreadyInUseException.class, () -> {
-            teamService.addPlayerToTeam(person2Name, teamName, playerNumber);
-        });
+        assertThrows(NumberAlreadyInUseException.class, () -> teamService.addPlayerToTeam(person2Name, teamName, playerNumber));
         Team team = teamService.getTeam(teamName);
         assertThat(team.getPlayers(), hasSize(1));        
     }

@@ -31,10 +31,10 @@ public class TallyTests {
                                                     TallyType.WIN
                                     );
         Tally tally = new Tally(teamName, tallyTypes);
-        assertThat(tally.getWins(), is(equalTo(3l)));
-        assertThat(tally.getLosses(), is(equalTo(2l)));
-        assertThat(tally.getTies(), is(equalTo(1l)));
-        assertThat(tally.getUnscored(), is(equalTo(0l)));
+        assertThat(tally.getWins(), is(equalTo(3L)));
+        assertThat(tally.getLosses(), is(equalTo(2L)));
+        assertThat(tally.getTies(), is(equalTo(1L)));
+        assertThat(tally.getUnscored(), is(equalTo(0L)));
     }
 
     @Test
@@ -48,6 +48,6 @@ public class TallyTests {
                                                     TallyType.WIN
                                     );
         Tally tally = new Tally(teamName, tallyTypes);
-        assertThat(tally.getTotal(), is(equalTo(13l)));
+        assertThat(tally.getTotal(), is(equalTo(13L)));
     }
 }

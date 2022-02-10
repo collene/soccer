@@ -34,28 +34,24 @@ public class PersonServiceTests {
     @Test
     public void create_person_works() throws Exception {
         final String testPersonName = "Test person";
-        assertThat(personRepository.count(), is(equalTo(0l)));        
-        assertThrows(PersonDoesNotExistException.class, () -> {
-            personService.getPerson(testPersonName);
-        });
+        assertThat(personRepository.count(), is(equalTo(0L)));
+        assertThrows(PersonDoesNotExistException.class, () -> personService.getPerson(testPersonName));
         Person newPerson = personService.createPerson(testPersonName);
         assertThat(personService.getPerson(testPersonName), is(equalTo(newPerson)));
-        assertThat(personRepository.count(), is(equalTo(1l)));
+        assertThat(personRepository.count(), is(equalTo(1L)));
     }
 
     @Test
     public void create_person_with_duplicate_name_fails() throws Exception {
         final String samePersonName = "Test person";
         personService.createPerson(samePersonName);        
-        assertThat(personRepository.count(), is(equalTo(1l)));
+        assertThat(personRepository.count(), is(equalTo(1L)));
 
         // make sure the exception is thrown
-        assertThrows(NameAlreadyExistsException.class, () -> {
-            personService.createPerson(samePersonName);
-        });
+        assertThrows(NameAlreadyExistsException.class, () -> personService.createPerson(samePersonName));
 
         // make sure that a second person hasn't been added after the exception was thrown
-        assertThat(personRepository.count(), is(equalTo(1l)));
+        assertThat(personRepository.count(), is(equalTo(1L)));
     }
 
     @Test
@@ -68,9 +64,7 @@ public class PersonServiceTests {
     @Test
     public void get_person_by_name_that_does_not_exist_fails() {
         final String testPersonName = "Person that does not exist";
-        assertThrows(PersonDoesNotExistException.class, () -> {
-            personService.getPerson(testPersonName);
-        });
+        assertThrows(PersonDoesNotExistException.class, () -> personService.getPerson(testPersonName));
     }
 
     @Test
@@ -79,7 +73,7 @@ public class PersonServiceTests {
         Person newPerson = personService.createPerson(personName);
         
         Person queriedPerson = personService.getOrCreatePerson(personName);
-        assertThat(personRepository.count(), is(equalTo(1l)));
+        assertThat(personRepository.count(), is(equalTo(1L)));
         assertThat(queriedPerson, is(equalTo(newPerson)));
     }
 
@@ -87,9 +81,9 @@ public class PersonServiceTests {
     public void get_or_create_person_who_does_not_exist_creates_person() throws Exception {
         final String personName = "Jane Doe";
         
-        assertThat(personRepository.count(), is(equalTo(0l)));
+        assertThat(personRepository.count(), is(equalTo(0L)));
         Person newPerson = personService.createPerson(personName);
-        assertThat(personRepository.count(), is(equalTo(1l)));
+        assertThat(personRepository.count(), is(equalTo(1L)));
         assertThat(personService.getPerson(personName), is(equalTo(newPerson)));
     }    
 }

@@ -92,15 +92,12 @@ public class Team {
     }    
 
     private boolean hasPlayerMatching(Predicate<Player> lambda) {
-        return players.stream()
-                    .filter(lambda)
-                    .count() > 0;
+        return players.stream().anyMatch(lambda);
     }
 
-    public Player addPlayer(Person person, int number) {
+    public void addPlayer(Person person, int number) {
         Player player = new Player(person, this, number);
         this.players.add(player);
-        return player;
     }
 
     @Override
@@ -114,7 +111,7 @@ public class Team {
         if(this.id == null || other.id == null) {
             return Objects.equals(this.name, other.name);
         }
-        return this.id == other.id;
+        return this.id.equals(other.id);
     }
 
     @Override

@@ -88,9 +88,7 @@ public class Tournament {
     }
     public boolean hasTeam(Team team) {
         log.debug("Checking if team " + team + " is in " + teams + ": " + teams.contains(team));
-        return teams.stream()
-                        .filter(t -> t.equals(team))
-                        .count() > 0;    
+        return teams.stream().anyMatch(t -> t.equals(team));
     }
 
     public void addGame(Team team1, Team team2) throws GameAlreadyInTournamentException {
@@ -101,18 +99,16 @@ public class Tournament {
                         .build());
     }
     public boolean hasGameWithTeams(Team team1, Team team2) {
-        return games.stream()
-                        .filter(game -> game.hasTeam(team1) && game.hasTeam(team2))
-                        .count() > 0;
+        return games.stream().anyMatch(game -> game.hasTeam(team1) && game.hasTeam(team2));
     }
     public Game getGame(Team team1, Team team2) throws GameDoesNotExistException {
         if(!hasGameWithTeams(team1, team2)) {
-            throw new GameDoesNotExistException("The game with teams " + team1.getName() + " and " +team2.getName() + " does not exist in this tournament");
+            throw new GameDoesNotExistException("The game with teams " + team1.getName() + " and " + team2.getName() + " does not exist in this tournament");
         }
         return games.stream()
                         .filter(game -> game.hasTeam(team1) && game.hasTeam(team2))
                         .findFirst()
-                        .get();
+                        .orElseThrow(()->new GameDoesNotExistException("The game with teams " + team1.getName() + " and " + team2.getName() + " does not exist in this tournament"));
     }
     public void scoreGame(Team team1, int team1Points, Team team2, int team2Points) throws GameDoesNotExistException, InvalidScoreException {
         Game game = getGame(team1, team2);
@@ -149,7 +145,7 @@ public class Tournament {
         if(this.id == null || other.id == null) {
             return Objects.equals(this.name, other.name);
         }
-        return this.id == other.id;
+        return this.id.equals(other.id);
     }
 
     @Override

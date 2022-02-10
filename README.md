@@ -57,7 +57,7 @@ To see details about a specific command, use help and the name of the command:
 ```
 soccer:>help create-tournament
 ```
-Once you have finished using the application, type exit to return back to the command line:
+Once you have finished using the application, type exit to return to the command line:
 ```
 soccer:>exit
 ```
@@ -127,7 +127,7 @@ I also tried to keep the user interface simple for the user, considering they ha
 ## Future Work
 * Allow the user to specify a default tournament so they don't have to specify the tournament as a parameter every time.  The CLI prompt should indicate that a default tournament has been selected (for example the prompt will change to soccer:>tournamentName:>
 * Before allowing a team to be added to a game or a tournament, make sure that it has at least 5 players and 1 coach.
-* Extend the scoring to allow for knockout tournaments (with quarter finals, semi finals, etc).
+* Extend the scoring to allow for knockout tournaments (with quarter-finals, semi-finals, etc.).
 * Allow full CRUD capabilities for entities in the interface.
 * Switch to a visual interface instead of the CLI for more flexibility.
 * Add checkstyle and code coverage plugins to Maven build.

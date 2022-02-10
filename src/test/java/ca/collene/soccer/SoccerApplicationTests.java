@@ -45,13 +45,13 @@ class SoccerApplicationTests {
 
 	@Test
 	void repositories_created_and_save() {
-		assertThat(tournamentRepository.count(), is(0l));
+		assertThat(tournamentRepository.count(), is(0L));
 
 		final String testTournamentName = "Test tournament";		
 		Tournament newTournament = tournamentRepository.save(new Tournament(testTournamentName));
 		assertThat(newTournament.getId(), is(notNullValue()));
 
-		assertThat(tournamentRepository.count(), is(1l));
+		assertThat(tournamentRepository.count(), is(1L));
 		Tournament tournament = tournamentRepository.findByName(testTournamentName);
 		assertThat(tournament, is(equalTo(newTournament)));
 	}

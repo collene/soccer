@@ -50,7 +50,7 @@ public class Person {
         if(this.id == null || other.id == null) {
             return Objects.equals(this.name, other.name);
         }  
-        return this.id == other.id;
+        return this.id.equals(other.id);
     }
 
     @Override

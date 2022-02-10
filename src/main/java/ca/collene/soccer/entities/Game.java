@@ -99,7 +99,8 @@ public class Game {
     public int getPointsForOtherTeam(Team team) throws TeamNotInGameException, GameNotScoredException {
         Team otherTeam = teams.stream().filter(t -> !t.equals(team))
                 .findFirst()
-                .get();
+                .orElseThrow(() -> new TeamNotInGameException("The team " + team.getName() + " is not in this game"));
+
         return getPointsForTeam(otherTeam);
     }
     public void setScore(Team team1, int team1Points, Team team2, int team2Points) throws InvalidScoreException {
@@ -138,7 +139,7 @@ public class Game {
             return Objects.equals(this.teams, other.teams)
                 && Objects.equals(this.points, other.points);       
         }
-        return this.id == other.id;
+        return this.id.equals(other.id);
     }
 
     @Override
